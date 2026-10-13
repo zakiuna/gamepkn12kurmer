@@ -1,779 +1,227 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<title>PKN Quest - Kelas 12</title>
-<style>
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-  html, body {
-    height: 100%; overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-    background: #050818; color: #fff;
-  }
-  #app {
-    max-width: 480px; height: 100dvh; margin: 0 auto; position: relative; overflow: hidden;
-    background: radial-gradient(circle at 20% 0%, #1a2a5c 0%, #0a1230 55%, #050818 100%);
-  }
-  .screen {
-    position: absolute; inset: 0; display: none; flex-direction: column;
-    padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); overflow-y: auto;
-  }
-  .screen.active { display: flex; animation: fadeIn .35s ease; }
-  .screen.overlay { padding: 0; justify-content: center; align-items: center; overflow: hidden; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px);} to {opacity:1; transform: none;} }
-
-  /* HOME */
-  .home-header { text-align: center; margin: 8px 0 18px; }
-  .home-header h1 {
-    font-size: 30px; font-weight: 900; letter-spacing: 2px;
-    background: linear-gradient(90deg,#ffd76a,#ff5a5a,#ffd76a);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-  }
-  .home-header p { color: #93a4d8; font-size: 12px; margin-top: 4px; letter-spacing: .5px; }
-
-  .home-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-  .stat {
-    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
-    border-radius: 14px; padding: 12px; text-align: center; backdrop-filter: blur(8px);
-  }
-  .stat span { display: block; font-size: 22px; font-weight: 800; color: #ffd76a; }
-  .stat small { font-size: 11px; color: #93a4d8; letter-spacing: 1px; text-transform: uppercase; }
-
-  .level-list { display: flex; flex-direction: column; gap: 12px; flex: 1; }
-  .level-card {
-    background: linear-gradient(135deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
-    border: 1px solid rgba(255,255,255,.14); border-radius: 16px; padding: 14px 16px;
-    display: flex; align-items: center; gap: 14px; cursor: pointer;
-    transition: transform .15s ease; position: relative; overflow: hidden;
-  }
-  .level-card:active { transform: scale(.97); }
-  .level-card.completed { border-color: rgba(120,255,160,.4); background: linear-gradient(135deg, rgba(120,255,160,.14), rgba(120,255,160,.03)); }
-  .level-icon {
-    width: 46px; height: 46px; border-radius: 12px;
-    background: linear-gradient(135deg,#ffd76a,#ff8b3d);
-    display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
-    box-shadow: 0 4px 14px rgba(255,180,60,.35);
-  }
-  .level-info { flex: 1; min-width: 0; }
-  .level-info .bab { font-size: 10px; letter-spacing: 2px; color: #ffd76a; font-weight: 800; }
-  .level-info .ttl { font-size: 14px; font-weight: 700; margin-top: 2px; line-height: 1.25; }
-  .level-info .sub { font-size: 11px; color: #93a4d8; margin-top: 3px; }
-  .level-status { font-size: 22px; flex-shrink: 0; }
-
-  .btn-garden {
-    margin-top: 14px; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 800;
-    background: linear-gradient(135deg,#2fbf6b,#1a8a4a); color: #fff; border: none;
-    cursor: pointer; letter-spacing: 1px; box-shadow: 0 6px 20px rgba(47,191,107,.35);
-  }
-  .btn-garden:active { transform: scale(.97); }
-
-  /* MATERIAL SCREEN */
-  .mat-top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-  .btn-back {
-    width: 38px; height: 38px; border-radius: 10px; border: 1px solid rgba(255,255,255,.16);
-    background: rgba(255,255,255,.06); color: #fff; font-size: 18px; cursor: pointer; flex-shrink: 0;
-  }
-  .mat-info { flex: 1; min-width: 0; }
-  .mat-bab { font-size: 10px; letter-spacing: 2px; color: #ffd76a; font-weight: 800; }
-  .mat-title { font-size: 14px; font-weight: 700; line-height: 1.25; }
-
-  .mat-body {
-    background: linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
-    border: 1px solid rgba(255,255,255,.14); border-radius: 16px; padding: 16px;
-    line-height: 1.55; font-size: 13.5px; color: #dbe3ff;
-    margin-bottom: 14px; flex: 1;
-  }
-  .mat-body h3 {
-    font-size: 14px; color: #ffd76a; margin: 14px 0 6px; letter-spacing: .5px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .mat-body h3:first-child { margin-top: 0; }
-  .mat-body p { margin-bottom: 8px; }
-  .mat-body ul { margin: 6px 0 10px 18px; }
-  .mat-body li { margin-bottom: 4px; }
-  .mat-body .highlight {
-    background: rgba(255,215,106,.13); border-left: 3px solid #ffd76a;
-    padding: 8px 12px; border-radius: 6px; margin: 8px 0; font-size: 12.5px; color: #ffe9b8;
-  }
-
-  .btn-start-quiz {
-    padding: 15px; border-radius: 14px; font-size: 15px; font-weight: 800;
-    background: linear-gradient(135deg,#ffd76a,#ff8b3d); color: #2a1a00;
-    border: none; cursor: pointer; letter-spacing: 1px;
-    box-shadow: 0 6px 22px rgba(255,180,60,.45);
-  }
-  .btn-start-quiz:active { transform: scale(.97); }
-
-  /* QUIZ */
-  .quiz-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-  .quiz-info { flex: 1; min-width: 0; }
-  .quiz-bab { font-size: 10px; letter-spacing: 2px; color: #ffd76a; font-weight: 800; }
-  .quiz-title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .quiz-progress { font-size: 12px; color: #93a4d8; font-weight: 700; }
-
-  .progress-bar { height: 6px; background: rgba(255,255,255,.1); border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
-  #progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg,#ffd76a,#ff5a5a); border-radius: 4px; transition: width .3s ease; }
-
-  .question-card {
-    background: linear-gradient(135deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
-    border: 1px solid rgba(255,255,255,.14); border-radius: 16px; padding: 16px; margin-bottom: 14px;
-  }
-  .q-number { font-size: 11px; letter-spacing: 2px; color: #ffd76a; font-weight: 800; margin-bottom: 6px; }
-  .q-text { font-size: 15px; line-height: 1.45; font-weight: 600; }
-
-  .options { display: flex; flex-direction: column; gap: 10px; }
-  .opt {
-    text-align: left; padding: 14px 16px; border-radius: 14px; font-size: 14px; line-height: 1.35;
-    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14);
-    color: #fff; cursor: pointer; display: flex; gap: 12px; align-items: flex-start;
-    transition: transform .12s ease; font-family: inherit;
-  }
-  .opt:active { transform: scale(.98); background: rgba(255,255,255,.12); }
-  .opt .letter {
-    width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
-    background: linear-gradient(135deg,#3a4a8a,#2a3a6a);
-    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px;
-  }
-  .opt.correct { background: linear-gradient(135deg, rgba(47,191,107,.35), rgba(47,191,107,.1)); border-color: #2fbf6b; }
-  .opt.wrong { background: linear-gradient(135deg, rgba(255,60,60,.35), rgba(255,60,60,.1)); border-color: #ff3c3c; }
-  .opt:disabled { cursor: default; }
-
-  /* FEEDBACK / REWARD */
-  #screen-feedback, #screen-reward {
-    background: radial-gradient(circle at 50% 40%, #16224a 0%, #060a1e 80%);
-  }
-  #fb-canvas, #reward-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-
-  .fb-content {
-    position: relative; z-index: 2; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; width: 100%; height: 100%;
-    padding: 40px 24px; text-align: center;
-  }
-  .pancasila-wrap {
-    position: relative; width: 220px; height: 220px; margin-bottom: 12px;
-    filter: drop-shadow(0 12px 30px rgba(0,0,0,.55));
-    animation: emblemIn .6s cubic-bezier(.2,.9,.3,1.3);
-  }
-  @keyframes emblemIn {
-    0% { transform: scale(.3) rotate(-12deg); opacity: 0; }
-    60% { transform: scale(1.08) rotate(3deg); opacity: 1; }
-    100% { transform: scale(1) rotate(0); opacity: 1; }
-  }
-  .pancasila-wrap svg { width: 100%; height: 100%; display: block; }
-
-  .fb-text {
-    font-size: 30px; font-weight: 900; letter-spacing: 3px;
-    text-shadow: 0 4px 24px rgba(0,0,0,.6); margin-bottom: 4px;
-  }
-  .fb-text.ok { color: #6cff9a; }
-  .fb-text.no { color: #ff5a5a; }
-
-  .fb-sub {
-    font-size: 13px; color: #c8d3f5; padding: 0 12px; line-height: 1.45;
-    max-width: 320px; margin-bottom: 16px;
-  }
-
-  .btn-primary {
-    padding: 14px 34px; border-radius: 14px; font-size: 15px; font-weight: 800;
-    background: linear-gradient(135deg,#ffd76a,#ff8b3d); color: #2a1a00;
-    border: none; cursor: pointer; letter-spacing: 1px;
-    box-shadow: 0 8px 26px rgba(255,180,60,.45);
-  }
-  .btn-primary:active { transform: scale(.96); }
-  .btn-primary.hidden { display: none; }
-
-  /* REWARD */
-  .reward-badge {
-    position: relative; font-size: 56px; z-index: 2;
-    opacity: 0; transition: opacity .5s ease;
-  }
-  .reward-badge.show { opacity: 1; animation: pop .6s ease; }
-  @keyframes pop { 0%{transform:scale(.3);} 60%{transform:scale(1.2);} 100%{transform:scale(1);} }
-  .reward-text {
-    position: relative; z-index: 2; font-size: 15px; font-weight: 700;
-    color: #ffd76a; padding: 0 24px; text-align: center; margin-top: 8px; line-height: 1.4;
-  }
-  #screen-reward .fb-content { justify-content: flex-end; padding-bottom: 100px; }
-
-  /* GARDEN */
-  .garden-header { text-align: center; margin-bottom: 8px; }
-  .garden-header h2 { font-size: 22px; font-weight: 900; color: #6cff9a; }
-  .garden-header p { font-size: 12px; color: #93a4d8; margin-top: 4px; }
-  #garden-canvas { flex: 1; width: 100%; min-height: 320px; border-radius: 16px; }
-
-  ::-webkit-scrollbar { width: 0; height: 0; }
-</style>
-</head>
-<body>
-<div id="app">
-
-  <!-- HOME -->
-  <div id="screen-home" class="screen active">
-    <div class="home-header">
-      <h1>PKN QUEST</h1>
-      <p>KELAS 12 · KURIKULUM MERDEKA · SEMESTER 1</p>
-    </div>
-    <div class="home-stats">
-      <div class="stat"><span id="stat-plants">0</span><small>Tanaman</small></div>
-      <div class="stat"><span id="stat-levels">0/4</span><small>Level Selesai</small></div>
-    </div>
-    <div class="level-list" id="level-list"></div>
-    <button class="btn-garden" id="btn-garden">🌱 Lihat Kebun Pancasila</button>
-  </div>
-
-  <!-- MATERIAL -->
-  <div id="screen-material" class="screen">
-    <div class="mat-top">
-      <button class="btn-back" id="mat-back">←</button>
-      <div class="mat-info">
-        <div class="mat-bab" id="mat-bab">BAB 1</div>
-        <div class="mat-title" id="mat-title">—</div>
-      </div>
-    </div>
-    <div class="mat-body" id="mat-body"></div>
-    <button class="btn-start-quiz" id="btn-start-quiz">📝 Mulai Kuis (10 Soal)</button>
-  </div>
-
-  <!-- QUIZ -->
-  <div id="screen-quiz" class="screen">
-    <div class="quiz-top">
-      <button class="btn-back" id="btn-back">←</button>
-      <div class="quiz-info">
-        <div class="quiz-bab" id="quiz-bab">BAB 1</div>
-        <div class="quiz-title" id="quiz-title">—</div>
-      </div>
-      <div class="quiz-progress" id="quiz-progress">1/10</div>
-    </div>
-    <div class="progress-bar"><div id="progress-fill"></div></div>
-    <div class="question-card">
-      <div class="q-number" id="q-number">SOAL 1</div>
-      <div class="q-text" id="q-text">—</div>
-    </div>
-    <div class="options" id="options"></div>
-  </div>
-
-  <!-- FEEDBACK -->
-  <div id="screen-feedback" class="screen overlay">
-    <canvas id="fb-canvas"></canvas>
-    <div class="fb-content">
-      <div class="pancasila-wrap" id="pancasila-wrap"></div>
-      <div class="fb-text" id="fb-text">BENAR!</div>
-      <div class="fb-sub" id="fb-sub"></div>
-      <button class="btn-primary hidden" id="fb-btn">Ulangi Level</button>
-    </div>
-  </div>
-
-  <!-- REWARD -->
-  <div id="screen-reward" class="screen overlay">
-    <canvas id="reward-canvas"></canvas>
-    <div class="fb-content">
-      <div class="reward-badge" id="reward-badge">🏅</div>
-      <div class="reward-text" id="reward-text"></div>
-      <button class="btn-primary hidden" id="reward-btn" style="margin-top:20px;">Kembali ke Beranda</button>
-    </div>
-  </div>
-
-  <!-- GARDEN -->
-  <div id="screen-garden" class="screen">
-    <div class="garden-header">
-      <h2>🌿 Kebun Pancasila</h2>
-      <p>Setiap level yang selesai menumbuhkan 1 tanaman berbunga & berbuah</p>
-    </div>
-    <canvas id="garden-canvas"></canvas>
-    <button class="btn-primary" id="garden-back" style="position:static; transform:none; margin-top:12px;">Kembali</button>
-  </div>
-
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
 /* =========================================================
-   DATA: MATERI + SOAL (10 per BAB)
-   ========================================================= */
-const QUIZ_DATA = [
-  {
-    id: 1, bab: 'BAB 1', title: 'Hak dan Kewajiban Warga Negara', icon: '⚖️',
-    material: `
-      <h3>📖 Pengertian Hak dan Kewajiban</h3>
-      <p><b>Hak</b> adalah sesuatu yang mutlak menjadi milik seseorang dan penggunaannya bergantung pada diri sendiri. <b>Kewajiban</b> adalah sesuatu yang harus dilaksanakan dengan penuh tanggung jawab.</p>
-      <div class="highlight">Hak dan kewajiban adalah dua hal yang tidak bisa dipisahkan — keduanya harus dilaksanakan secara <b>seimbang</b>.</div>
-
-      <h3>⚖️ Dasar Hukum di UUD NRI 1945</h3>
-      <ul>
-        <li><b>Pasal 27 ayat 1</b> — kesamaan kedudukan di depan hukum</li>
-        <li><b>Pasal 27 ayat 2</b> — hak atas pekerjaan dan penghidupan yang layak</li>
-        <li><b>Pasal 27 ayat 3</b> — hak & kewajiban bela negara</li>
-        <li><b>Pasal 28</b> — kemerdekaan berserikat dan berkumpul</li>
-        <li><b>Pasal 29</b> — kemerdekaan memeluk agama</li>
-        <li><b>Pasal 30</b> — hak & kewajiban ikut serta dalam pertahanan negara</li>
-        <li><b>Pasal 31</b> — hak mendapat pendidikan</li>
-        <li><b>Pasal 33 & 34</b> — kesejahteraan sosial & ekonomi</li>
-      </ul>
-
-      <h3>🇮🇩 Contoh Hak Warga Negara</h3>
-      <ul>
-        <li>Hak hidup dan mempertahankan kehidupan</li>
-        <li>Hak memeluk agama dan beribadah</li>
-        <li>Hak mendapat pendidikan</li>
-        <li>Hak memilih dan dipilih dalam pemilu</li>
-        <li>Hak mendapat perlindungan hukum</li>
-      </ul>
-
-      <h3>🤝 Contoh Kewajiban Warga Negara</h3>
-      <ul>
-        <li>Membayar pajak tepat waktu</li>
-        <li>Menjaga keutuhan NKRI</li>
-        <li>Menghormati hak orang lain</li>
-        <li>Menaati hukum yang berlaku</li>
-        <li>Ikut serta dalam pembangunan nasional</li>
-      </ul>
-
-      <h3>💡 Nilai Pancasila Terkait</h3>
-      <p>Sila <b>kedua</b> (Kemanusiaan yang adil dan beradab) dan sila <b>kelima</b> (Keadilan sosial) menjadi landasan moral dalam mewujudkan keseimbangan hak dan kewajiban seluruh warga negara.</p>
-    `,
-    questions: [
-      { q: 'Hak warga negara untuk memeluk agama dijamin dalam UUD NRI 1945 pasal...', options: ['Pasal 27','Pasal 28','Pasal 29','Pasal 30'], answer: 2 },
-      { q: 'Berikut yang merupakan kewajiban warga negara adalah...', options: ['Mendapat pendidikan','Membayar pajak','Mendapat pekerjaan','Memeluk agama'], answer: 1 },
-      { q: 'Pasal 27 ayat 1 UUD NRI 1945 mengatur tentang...', options: ['Kesamaan kedudukan di depan hukum','Hak beragama','Hak pendidikan','Hak berserikat'], answer: 0 },
-      { q: 'Contoh pengingkaran kewajiban terhadap lingkungan adalah...', options: ['Menanam pohon','Membuang sampah ke sungai','Kerja bakti','Daur ulang'], answer: 1 },
-      { q: 'Nilai-nilai Pancasila sila kedua berkaitan erat dengan...', options: ['Persatuan','Kemanusiaan','Ketuhanan','Keadilan sosial'], answer: 1 },
-      { q: 'Hak asasi manusia yang paling mendasar adalah hak untuk...', options: ['Hidup','Kaya','Berkuasa','Terkenal'], answer: 0 },
-      { q: 'Membayar pajak tepat waktu merupakan wujud...', options: ['Hak warga','Kewajiban warga','Hobi','Prestasi pribadi'], answer: 1 },
-      { q: 'Hak warga negara dalam bidang politik adalah...', options: ['Mendapat pendidikan','Memilih dalam pemilu','Mendapat pekerjaan','Mendapat layanan kesehatan'], answer: 1 },
-      { q: 'Undang-undang yang mengatur HAM di Indonesia adalah...', options: ['UU No. 39 Tahun 1999','UU No. 20 Tahun 2003','UU No. 12 Tahun 2006','UU No. 24 Tahun 2009'], answer: 0 },
-      { q: 'Pelaksanaan hak dan kewajiban harus dilakukan secara...', options: ['Seimbang','Berlebihan','Sembarangan','Terpaksa'], answer: 0 },
-    ]
-  },
-  {
-    id: 2, bab: 'BAB 2', title: 'Dinamika Persatuan & Kesatuan Bangsa', icon: '🇮🇩',
-    material: `
-      <h3>🇮🇩 Bhinneka Tunggal Ika</h3>
-      <p>Semboyan bangsa Indonesia yang berarti <b>"berbeda-beda tetapi tetap satu"</b>. Menjadi perekat keberagaman suku, agama, ras, dan budaya dalam satu kesatuan NKRI.</p>
-
-      <h3>📜 Tonggak Persatuan Indonesia</h3>
-      <ul>
-        <li><b>1908</b> — Kebangkitan Nasional (Budi Utomo)</li>
-        <li><b>28 Oktober 1928</b> — Sumpah Pemuda</li>
-        <li><b>17 Agustus 1945</b> — Proklamasi Kemerdekaan</li>
-        <li><b>18 Agustus 1945</b> — Pengesahan UUD NRI 1945</li>
-      </ul>
-
-      <h3>🛡️ Ancaman terhadap NKRI</h3>
-      <p><b>Ancaman Internal (dari dalam):</b></p>
-      <ul>
-        <li>Gerakan separatisme & disintegrasi</li>
-        <li>Konflik antar suku/agama</li>
-        <li>Korupsi dan KKN</li>
-        <li>Radikalisme & terorisme domestik</li>
-      </ul>
-      <p><b>Ancaman Eksternal (dari luar):</b></p>
-      <ul>
-        <li>Agresi militer negara lain</li>
-        <li>Spionase & perang siber</li>
-        <li>Terorisme internasional</li>
-        <li>Pengaruh ideologi asing</li>
-      </ul>
-
-      <h3>🌏 Wawasan Nusantara</h3>
-      <p>Cara pandang bangsa Indonesia tentang diri dan tanah airnya sebagai negara kepulauan dengan keanekaragaman budaya, agama, dan adat istiadat untuk mencapai tujuan nasional.</p>
-
-      <h3>⚔️ Sistem Pertahanan</h3>
-      <p><b>Sishankamrata</b> (Sistem Pertahanan Keamanan Rakyat Semesta) — melibatkan seluruh rakyat, wilayah, dan sumber daya nasional. Diatur dalam Pasal 30 UUD NRI 1945.</p>
-    `,
-    questions: [
-      { q: 'Semboyan bangsa Indonesia yang menggambarkan persatuan dalam keberagaman adalah...', options: ['Bhinneka Tunggal Ika','Tut Wuri Handayani','Rawe-rawe rantas','Ing Ngarsa Sung Tuladha'], answer: 0 },
-      { q: 'Negara Kesatuan Republik Indonesia diproklamasikan pada tanggal...', options: ['17 Agustus 1945','18 Agustus 1945','1 Juni 1945','28 Oktober 1928'], answer: 0 },
-      { q: 'Ancaman terhadap NKRI yang berasal dari dalam negeri disebut ancaman...', options: ['Eksternal','Internal','Global','Regional'], answer: 1 },
-      { q: 'Contoh ancaman internal terhadap NKRI adalah...', options: ['Agresi militer','Gerakan separatisme','Spionase asing','Terorisme internasional'], answer: 1 },
-      { q: 'Wawasan Nusantara adalah cara pandang bangsa Indonesia tentang...', options: ['Diri dan tanah airnya','Ekonomi dunia','Politik luar negeri','Kebudayaan asing'], answer: 0 },
-      { q: 'Prinsip utama dalam menjaga persatuan di tengah keberagaman adalah...', options: ['Etnosentrisme','Chauvinisme','Toleransi','Primordialisme'], answer: 2 },
-      { q: 'Sistem pertahanan negara Indonesia yang melibatkan seluruh rakyat disebut...', options: ['Sishankamrata','Militerisme','Sentralistik','Federalisme'], answer: 0 },
-      { q: 'Peristiwa Sumpah Pemuda terjadi pada tahun...', options: ['1908','1928','1945','1966'], answer: 1 },
-      { q: 'Integrasi nasional bertujuan untuk...', options: ['Memecah belah bangsa','Menyatukan keberagaman','Mengasingkan daerah','Membatasi kebebasan'], answer: 1 },
-      { q: 'Peran warga negara dalam menjaga keutuhan NKRI adalah...', options: ['Acuh tak acuh','Apatis','Cinta tanah air','Individualis'], answer: 2 },
-    ]
-  },
-  {
-    id: 3, bab: 'BAB 3', title: 'Sistem Hukum dan Peradilan di Indonesia', icon: '🏛️',
-    material: `
-      <h3>📖 Pengertian Hukum</h3>
-      <p>Hukum adalah kumpulan peraturan yang dibuat oleh negara untuk mengatur tingkah laku manusia dalam masyarakat, bersifat <b>memaksa</b> dan memiliki <b>sanksi tegas</b>.</p>
-      <div class="highlight">Asas hukum pidana: <b>"Nullum delictum nulla poena sine praevia lege"</b> — tidak ada pidana tanpa undang-undang yang mengaturnya lebih dulu.</div>
-
-      <h3>🎯 Tujuan Hukum</h3>
-      <ul>
-        <li><b>Keadilan</b> (teori etis)</li>
-        <li><b>Kepastian</b> (teori yuridis)</li>
-        <li><b>Kemanfaatan</b> (teori utilitas)</li>
-      </ul>
-
-      <h3>⚖️ Pembagian Hukum</h3>
-      <ul>
-        <li><b>Hukum Publik</b> — mengatur hubungan warga negara dengan negara (contoh: hukum tata negara, hukum pidana, hukum administrasi)</li>
-        <li><b>Hukum Privat</b> — mengatur hubungan antar warga negara (contoh: hukum perdata, hukum dagang)</li>
-      </ul>
-
-      <h3>🏛️ Lembaga Peradilan Indonesia</h3>
-      <ul>
-        <li><b>Mahkamah Agung (MA)</b> — peradilan tertinggi, mengadili tingkat kasasi</li>
-        <li><b>Mahkamah Konstitusi (MK)</b> — menguji UU terhadap UUD, sengketa pemilu</li>
-        <li><b>Komisi Yudisial (KY)</b> — mengawasi perilaku hakim</li>
-        <li><b>Pengadilan Negeri</b> — tingkat pertama (pidana/perdata umum)</li>
-        <li><b>Pengadilan Tinggi</b> — tingkat banding</li>
-        <li><b>PTUN</b> — sengketa tata usaha negara</li>
-        <li><b>Pengadilan Agama</b> — perkara perdata Islam</li>
-        <li><b>Pengadilan Militer</b> — perkara anggota TNI</li>
-      </ul>
-
-      <h3>📜 Hierarki Peraturan Perundang-undangan</h3>
-      <p>UUD NRI 1945 → TAP MPR → UU/Perppu → Perpres → Perda. Pancasila adalah <b>sumber dari segala sumber hukum</b>.</p>
-    `,
-    questions: [
-      { q: 'Hukum yang mengatur hubungan antara warga negara dengan negara termasuk...', options: ['Hukum privat','Hukum publik','Hukum adat','Hukum asing'], answer: 1 },
-      { q: 'Lembaga peradilan tertinggi di Indonesia adalah...', options: ['Mahkamah Agung','Mahkamah Konstitusi','Komisi Yudisial','Pengadilan Negeri'], answer: 0 },
-      { q: 'Asas "nullum delictum nulla poena sine praevia lege" berarti...', options: ['Tidak ada pidana tanpa kesalahan','Tidak ada pidana tanpa undang-undang','Praduga tak bersalah','Kebebasan hakim'], answer: 1 },
-      { q: 'Mahkamah Konstitusi berwenang menguji...', options: ['Peraturan Daerah','Undang-Undang terhadap UUD','Peraturan Presiden','Peraturan Menteri'], answer: 1 },
-      { q: 'Peradilan yang mengadili perkara pidana tingkat pertama adalah...', options: ['Pengadilan Negeri','Pengadilan Tinggi','Mahkamah Agung','Pengadilan Agama'], answer: 0 },
-      { q: 'Tujuan hukum menurut teori etis adalah mewujudkan...', options: ['Kepastian','Keadilan','Kemanfaatan','Ketertiban'], answer: 1 },
-      { q: 'Hukum bersifat memaksa artinya...', options: ['Boleh dilanggar','Harus dipatuhi dengan sanksi tegas','Bersifat opsional','Mengikat hanya pejabat'], answer: 1 },
-      { q: 'Peradilan yang berwenang mengadili sengketa tata usaha negara adalah...', options: ['Pengadilan Negeri','Pengadilan Agama','PTUN','Pengadilan Militer'], answer: 2 },
-      { q: 'Sumber hukum tertinggi di Indonesia adalah...', options: ['Undang-Undang','Pancasila dan UUD 1945','Peraturan Presiden','Peraturan Pemerintah'], answer: 1 },
-      { q: 'Hakim dalam memutus perkara harus berdasarkan...', options: ['Tekanan pihak','Kehendak sendiri','Hukum dan keadilan','Suap'], answer: 2 },
-    ]
-  },
-  {
-    id: 4, bab: 'BAB 4', title: 'Kasus Pelanggaran Hak & Pengingkaran Kewajiban', icon: '🛡️',
-    material: `
-      <h3>📖 Pengertian Pelanggaran HAM</h3>
-      <p>Pelanggaran HAM adalah perbuatan yang mengurangi, menghilangkan, atau membatasi hak asasi seseorang/kelompok baik disengaja maupun tidak.</p>
-
-      <h3>⚠️ Faktor Penyebab Pelanggaran HAM</h3>
-      <p><b>Faktor Internal:</b></p>
-      <ul>
-        <li>Sikap egois dan mementingkan diri sendiri</li>
-        <li>Rendahnya kesadaran HAM</li>
-        <li>Tidak toleran terhadap perbedaan</li>
-        <li>Kondisi psikologis pelaku (emosional)</li>
-      </ul>
-      <p><b>Faktor Eksternal:</b></p>
-      <ul>
-        <li>Ketidaktegasan aparat penegak hukum</li>
-        <li>Penyalahgunaan kekuasaan</li>
-        <li>Kesenjangan sosial & ekonomi</li>
-        <li>Globalisasi & masuknya ideologi asing</li>
-      </ul>
-
-      <h3>🔍 Contoh Kasus di Indonesia</h3>
-      <ul>
-        <li>Kerusuhan Mei 1998</li>
-        <li>Kasus Trisakti & Semanggi</li>
-        <li>Konflik horizontal antar kelompok</li>
-        <li>Kasus Timor Timur (pra-referendum)</li>
-      </ul>
-
-      <h3>⚖️ Dasar Hukum & Lembaga</h3>
-      <ul>
-        <li><b>UU No. 39 Tahun 1999</b> tentang HAM</li>
-        <li><b>UU No. 26 Tahun 2000</b> tentang Pengadilan HAM</li>
-        <li><b>Komnas HAM</b> — lembaga pengkajian & pemantauan HAM</li>
-        <li><b>Pengadilan HAM</b> — bersifat <i>ad hoc</i> & permanen</li>
-      </ul>
-
-      <h3>🛡️ Upaya Penegakan HAM</h3>
-      <ul>
-        <li><b>Preventif</b> — sosialisasi, edukasi, penyuluhan HAM</li>
-        <li><b>Represif</b> — penindakan, penyelesaian perkara, sanksi hukum</li>
-      </ul>
-
-      <h3>🤝 Peran Serta Masyarakat</h3>
-      <p>Melaporkan pelanggaran ke pihak berwenang, tidak main hakim sendiri, menghormati hak orang lain, dan mendukung penegakan hukum yang adil.</p>
-    `,
-    questions: [
-      { q: 'Salah satu contoh pelanggaran HAM berat di Indonesia adalah...', options: ['Peristiwa kerusuhan 1998','Pemilu','Sidang pengadilan','Demonstrasi damai'], answer: 0 },
-      { q: 'Faktor internal penyebab pelanggaran HAM adalah...', options: ['Sikap egois dan intoleran','Globalisasi','Bencana alam','Perkembangan teknologi'], answer: 0 },
-      { q: 'Upaya penegakan HAM dapat dilakukan melalui cara...', options: ['Preventif dan represif','Hanya preventif','Hanya represif','Tidak ada upaya'], answer: 0 },
-      { q: 'Lembaga yang berperan menegakkan HAM di Indonesia adalah...', options: ['Komnas HAM','KPK','BPK','DPR'], answer: 0 },
-      { q: 'Tidak membayar pajak merupakan bentuk...', options: ['Pelanggaran hukum','Pelaksanaan hak','Prestasi','Kebebasan pribadi'], answer: 0 },
-      { q: 'Sanksi bagi pelanggar HAM berat diatur dalam...', options: ['UU No. 26 Tahun 2000','UU No. 39 Tahun 1999','KUHP','UU No. 12 Tahun 2006'], answer: 0 },
-      { q: 'Contoh upaya preventif penegakan HAM adalah...', options: ['Penangkapan pelaku','Sosialisasi dan edukasi HAM','Pengadilan','Pemberian hukuman'], answer: 1 },
-      { q: 'Peran serta masyarakat dalam penegakan HAM contohnya...', options: ['Main hakim sendiri','Melaporkan pelanggaran ke pihak berwenang','Diam saja','Mendukung pelanggar'], answer: 1 },
-      { q: 'Pengadilan HAM di Indonesia bersifat...', options: ['Ad hoc dan permanen','Sementara saja','Hanya permanen','Khusus militer'], answer: 0 },
-      { q: 'Hak untuk mendapatkan perlindungan hukum dijamin dalam UUD 1945...', options: ['Pasal 28D ayat 1','Pasal 27','Pasal 29','Pasal 30'], answer: 0 },
-    ]
-  }
-];
-
-/* =========================================================
-   SVG PANCASILA (untuk feedback benar/salah)
-   ========================================================= */
-function pancasilaSVG(mode) {
-  // mode: 'correct' | 'wrong'
-  const stroke = mode === 'correct' ? '#2ecc71' : '#ff3c3c';
-  const mark = mode === 'correct' ? `
-    <g transform="translate(160,160)">
-      <circle r="34" fill="#0a4d28" stroke="#2ecc71" stroke-width="4"/>
-      <path d="M-16 0 L-4 14 L18 -14" fill="none" stroke="#6cff9a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-    </g>
-  ` : `
-    <g transform="translate(160,160)">
-      <circle r="34" fill="#4d0a0a" stroke="#ff3c3c" stroke-width="4"/>
-      <line x1="-14" y1="-14" x2="14" y2="14" stroke="#ff5a5a" stroke-width="7" stroke-linecap="round"/>
-      <line x1="14" y1="-14" x2="-14" y2="14" stroke="#ff5a5a" stroke-width="7" stroke-linecap="round"/>
-    </g>
-  `;
-
-  return `
-  <svg viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <radialGradient id="gold${mode}" cx="50%" cy="38%" r="65%">
-        <stop offset="0%" stop-color="#fff4b8"/>
-        <stop offset="55%" stop-color="#ffd54a"/>
-        <stop offset="100%" stop-color="#b8860b"/>
-      </radialGradient>
-      <linearGradient id="shield${mode}" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#fff3b0" stop-opacity="0.35"/>
-        <stop offset="100%" stop-color="#7a5a10" stop-opacity="0.35"/>
-      </linearGradient>
-      <filter id="shadow${mode}" x="-20%" y="-20%" width="140%" height="140%">
-        <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.55"/>
-      </filter>
-    </defs>
-
-    <!-- Shield / cakra gold -->
-    <circle cx="160" cy="150" r="118" fill="url(#gold${mode})" stroke="#7a5a10" stroke-width="6" filter="url(#shadow${mode})"/>
-    <circle cx="160" cy="150" r="106" fill="none" stroke="#7a5a10" stroke-width="2" opacity="0.6"/>
-
-    <!-- Ornamental inner ring -->
-    <circle cx="160" cy="150" r="98" fill="none" stroke="#7a5a10" stroke-width="1.5" opacity="0.4" stroke-dasharray="4 6"/>
-
-    <!-- Bintang besar (sila 1) -->
-    ${starPath(160, 118, 5, 34, 15, '#ff3c3c', '#7a2a00')}
-    <!-- 4 bintang kecil (sila 2-5) -->
-    ${starPath(112, 178, 5, 18, 8, '#ff3c3c', '#7a2a00')}
-    ${starPath(208, 178, 5, 18, 8, '#ff3c3c', '#7a2a00')}
-    ${starPath(130, 216, 5, 16, 7, '#ff3c3c', '#7a2a00')}
-    ${starPath(190, 216, 5, 16, 7, '#ff3c3c', '#7a2a00')}
-
-    <!-- Text -->
-    <text x="160" y="290" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="bold" fill="#ffd76a" letter-spacing="2">PANCASILA</text>
-
-    <!-- Mark (check/X) -->
-    ${mark}
-  </svg>`;
-}
-
-function starPath(cx, cy, spikes, outer, inner, fill, stroke) {
-  let pts = [];
-  let rot = -Math.PI / 2;
-  const step = Math.PI / spikes;
-  for (let i = 0; i < spikes; i++) {
-    pts.push([cx + Math.cos(rot) * outer, cy + Math.sin(rot) * outer]);
-    rot += step;
-    pts.push([cx + Math.cos(rot) * inner, cy + Math.sin(rot) * inner]);
-    rot += step;
-  }
-  const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ') + ' Z';
-  return `<path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
-}
-
-/* =========================================================
-   STORAGE
-   ========================================================= */
-const STORAGE_KEY = 'pkn_quest_v2';
-function loadProgress() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { levels: {}, plants: 0 };
-    const obj = JSON.parse(raw);
-    return { levels: obj.levels || {}, plants: obj.plants || 0 };
-  } catch (e) { return { levels: {}, plants: 0 }; }
-}
-function saveProgress() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-}
-
-let progress = loadProgress();
-let current = { levelIdx: 0, qIdx: 0, score: 0 };
-
-const $ = s => document.querySelector(s);
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-/* =========================================================
-   HOME
-   ========================================================= */
-function renderHome() {
-  const list = $('#level-list');
-  list.innerHTML = '';
-  let completed = 0;
-  QUIZ_DATA.forEach((lv, i) => {
-    const done = !!progress.levels[lv.id];
-    if (done) completed++;
-    const card = document.createElement('div');
-    card.className = 'level-card' + (done ? ' completed' : '');
-    card.innerHTML = `
-      <div class="level-icon">${lv.icon}</div>
-      <div class="level-info">
-        <div class="bab">${lv.bab}</div>
-        <div class="ttl">${lv.title}</div>
-        <div class="sub">10 soal · ${done ? 'Selesai ✅' : 'Belum selesai'}</div>
-      </div>
-      <div class="level-status">${done ? '✅' : '▶'}</div>
-    `;
-    card.addEventListener('click', () => openMaterial(i));
-    list.appendChild(card);
-  });
-  $('#stat-plants').textContent = progress.plants;
-  $('#stat-levels').textContent = completed + '/' + QUIZ_DATA.length;
-}
-
-/* =========================================================
-   MATERIAL
-   ========================================================= */
-function openMaterial(idx) {
-  const lv = QUIZ_DATA[idx];
-  current.levelIdx = idx;
-  $('#mat-bab').textContent = lv.bab;
-  $('#mat-title').textContent = lv.title;
-  $('#mat-body').innerHTML = lv.material;
-  showScreen('screen-material');
-  // scroll top
-  $('#screen-material').scrollTop = 0;
-}
-
-/* =========================================================
-   QUIZ
-   ========================================================= */
-function startLevel(idx) {
-  current = { levelIdx: idx, qIdx: 0, score: 0 };
-  showScreen('screen-quiz');
-  renderQuestion();
-}
-
-function renderQuestion() {
-  const lv = QUIZ_DATA[current.levelIdx];
-  const q = lv.questions[current.qIdx];
-  $('#quiz-bab').textContent = lv.bab;
-  $('#quiz-title').textContent = lv.title;
-  $('#quiz-progress').textContent = (current.qIdx + 1) + '/' + lv.questions.length;
-  $('#progress-fill').style.width = ((current.qIdx) / lv.questions.length * 100) + '%';
-  $('#q-number').textContent = 'SOAL ' + (current.qIdx + 1);
-  $('#q-text').textContent = q.q;
-
-  const optContainer = $('#options');
-  optContainer.innerHTML = '';
-  const letters = ['A','B','C','D'];
-  q.options.forEach((opt, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'opt';
-    btn.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
-    btn.addEventListener('click', () => answer(i));
-    optContainer.appendChild(btn);
-  });
-}
-
-function answer(picked) {
-  const lv = QUIZ_DATA[current.levelIdx];
-  const q = lv.questions[current.qIdx];
-  const isCorrect = picked === q.answer;
-
-  document.querySelectorAll('.opt').forEach((b, i) => {
-    b.disabled = true;
-    if (i === q.answer) b.classList.add('correct');
-    if (i === picked && !isCorrect) b.classList.add('wrong');
-  });
-
-  if (isCorrect) {
-    showScreen('screen-feedback');
-    showFeedback(true);
-    setTimeout(() => {
-      current.qIdx++;
-      if (current.qIdx >= lv.questions.length) {
-        completeLevel();
-      } else {
-        showScreen('screen-quiz');
-        renderQuestion();
-      }
-    }, 1800);
-  } else {
-    showScreen('screen-feedback');
-    showFeedback(false);
-  }
-}
-
-function showFeedback(correct) {
-  // Set pancasila svg
-  $('#pancasila-wrap').innerHTML = pancasilaSVG(correct ? 'correct' : 'wrong');
-  // reset animation
-  const wrap = $('#pancasila-wrap');
-  wrap.style.animation = 'none';
-  void wrap.offsetWidth;
-  wrap.style.animation = '';
-
-  const txt = $('#fb-text');
-  const sub = $('#fb-sub');
-  const btn = $('#fb-btn');
-
-  if (correct) {
-    txt.textContent = 'BENAR! 🇮🇩';
-    txt.className = 'fb-text ok';
-    sub.textContent = 'Pancasila dijunjung tinggi — bendera berkibar bangga! Lanjut ke soal berikutnya...';
-    btn.classList.add('hidden');
-  } else {
-    txt.textContent = 'SALAH ✕';
-    txt.className = 'fb-text no';
-    sub.textContent = 'Bendera tidak berkibar. Pancasila disilang! Kamu harus mengulang level ini dari awal.';
-    btn.classList.remove('hidden');
-    btn.textContent = '🔄 Ulangi Level';
-  }
-
-  Feedback3D.setWaving(correct);
-}
-
-/* =========================================================
-   COMPLETE LEVEL -> REWARD
-   ========================================================= */
-function completeLevel() {
-  const lv = QUIZ_DATA[current.levelIdx];
-  if (!progress.levels[lv.id]) {
-    progress.levels[lv.id] = { completed: true, date: Date.now() };
-    progress.plants = (progress.plants || 0) + 1;
-    saveProgress();
-  }
-  showScreen('screen-reward');
-  $('#reward-text').textContent = `Level ${lv.bab} selesai! Kamu menumbuhkan 1 tanaman berbunga & berbuah 🌸🍎`;
-  $('#reward-badge').classList.remove('show');
-  $('#reward-btn').classList.add('hidden');
-  Reward3D.start(() => {
-    $('#reward-badge').classList.add('show');
-    $('#reward-btn').classList.remove('hidden');
-  });
-}
-
-/* =========================================================
-   THREE.JS: FEEDBACK BACKGROUND FLAG
+   THREE.JS: FEEDBACK BACKGROUND FLAG (Garuda Pancasila)
    ========================================================= */
 const Feedback3D = (() => {
   let scene, camera, renderer, canvas;
-  let flagGeo, flagBasePositions;
+  let flagGeo, flagBasePositions, flagMat;
+  let xOverlayMesh;
   let waving = false;
   let clock = new THREE.Clock();
 
+  /* ---------- CANVAS DRAWING HELPERS ---------- */
+  function drawStar(ctx, cx, cy, spikes, outer, inner, fill, stroke) {
+    let rot = -Math.PI / 2;
+    const step = Math.PI / spikes;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(rot) * outer, cy + Math.sin(rot) * outer);
+    for (let i = 0; i < spikes; i++) {
+      rot += step;
+      ctx.lineTo(cx + Math.cos(rot) * inner, cy + Math.sin(rot) * inner);
+      rot += step;
+      ctx.lineTo(cx + Math.cos(rot) * outer, cy + Math.sin(rot) * outer);
+    }
+    ctx.closePath();
+    if (fill)   { ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.5; ctx.stroke(); }
+  }
+
+  function drawGaruda(ctx, cx, cy, size) {
+    const s = size / 100;
+    ctx.save();
+    ctx.translate(cx, cy);
+
+    // Gold gradient body
+    const grad = ctx.createRadialGradient(0, -10 * s, 5, 0, 0, 95 * s);
+    grad.addColorStop(0,    '#fff8cf');
+    grad.addColorStop(0.45, '#f0c020');
+    grad.addColorStop(1,    '#7a4f00');
+
+    ctx.fillStyle   = grad;
+    ctx.strokeStyle = '#5a3500';
+    ctx.lineWidth   = 1.2 * s;
+    ctx.lineJoin    = 'round';
+
+    /* -------- LEFT WING (spread feathers) -------- */
+    ctx.beginPath();
+    ctx.moveTo(-8 * s, -18 * s);
+    ctx.bezierCurveTo(-30 * s, -48 * s, -70 * s, -55 * s, -92 * s, -32 * s);
+    ctx.bezierCurveTo(-84 * s, -30 * s, -78 * s, -26 * s, -74 * s, -20 * s);
+    ctx.bezierCurveTo(-82 * s, -16 * s, -88 * s,  -8 * s, -90 * s,   0 * s);
+    ctx.bezierCurveTo(-82 * s,  -2 * s, -76 * s,   2 * s, -70 * s,   6 * s);
+    ctx.bezierCurveTo(-78 * s,  12 * s, -82 * s,  22 * s, -80 * s,  30 * s);
+    ctx.bezierCurveTo(-68 * s,  22 * s, -55 * s,  18 * s, -42 * s,  16 * s);
+    ctx.bezierCurveTo(-30 * s,  14 * s, -18 * s,  10 * s, -10 * s,   4 * s);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+
+    /* -------- RIGHT WING -------- */
+    ctx.beginPath();
+    ctx.moveTo(8 * s, -18 * s);
+    ctx.bezierCurveTo(30 * s, -48 * s, 70 * s, -55 * s, 92 * s, -32 * s);
+    ctx.bezierCurveTo(84 * s, -30 * s, 78 * s, -26 * s, 74 * s, -20 * s);
+    ctx.bezierCurveTo(82 * s, -16 * s, 88 * s,  -8 * s, 90 * s,   0 * s);
+    ctx.bezierCurveTo(82 * s,  -2 * s, 76 * s,   2 * s, 70 * s,   6 * s);
+    ctx.bezierCurveTo(78 * s,  12 * s, 82 * s,  22 * s, 80 * s,  30 * s);
+    ctx.bezierCurveTo(68 * s,  22 * s, 55 * s,  18 * s, 42 * s,  16 * s);
+    ctx.bezierCurveTo(30 * s,  14 * s, 18 * s,  10 * s, 10 * s,   4 * s);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+
+    /* -------- BODY -------- */
+    ctx.beginPath();
+    ctx.moveTo(-8 * s, -18 * s);
+    ctx.bezierCurveTo(-14 * s, 0, -12 * s, 20 * s, -6 * s, 34 * s);
+    ctx.lineTo(6 * s, 34 * s);
+    ctx.bezierCurveTo(12 * s, 20 * s, 14 * s, 0, 8 * s, -18 * s);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+
+    /* -------- HEAD -------- */
+    ctx.beginPath();
+    ctx.ellipse(0, -26 * s, 11 * s, 13 * s, 0, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+
+    /* -------- BEAK -------- */
+    ctx.beginPath();
+    ctx.moveTo(9 * s, -30 * s);
+    ctx.lineTo(24 * s, -26 * s);
+    ctx.lineTo(9 * s, -22 * s);
+    ctx.closePath();
+    ctx.fillStyle   = '#c98600';
+    ctx.strokeStyle = '#7a4f00';
+    ctx.fill(); ctx.stroke();
+
+    /* -------- CREST (feathers on head) -------- */
+    ctx.fillStyle = grad;
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(-4 * s + i * 3 * s, -36 * s);
+      ctx.lineTo(-2 * s + i * 3 * s, -47 * s);
+      ctx.lineTo( 2 * s + i * 3 * s, -38 * s);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    /* -------- TAIL FEATHERS -------- */
+    ctx.beginPath();
+    ctx.moveTo(-10 * s, 32 * s);
+    ctx.lineTo(-22 * s, 56 * s);
+    ctx.lineTo(-12 * s, 52 * s);
+    ctx.lineTo( -5 * s, 62 * s);
+    ctx.lineTo(  0 * s, 55 * s);
+    ctx.lineTo(  5 * s, 62 * s);
+    ctx.lineTo( 12 * s, 52 * s);
+    ctx.lineTo( 22 * s, 56 * s);
+    ctx.lineTo( 10 * s, 32 * s);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.stroke();
+
+    /* -------- LEGS & CLAWS -------- */
+    ctx.strokeStyle = '#7a4f00';
+    ctx.lineWidth   = 3 * s;
+    ctx.lineCap     = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-5 * s, 34 * s); ctx.lineTo(-10 * s, 52 * s);
+    ctx.moveTo( 5 * s, 34 * s); ctx.lineTo( 10 * s, 52 * s);
+    ctx.stroke();
+
+    /* -------- SHIELD (Pancasila) -------- */
+    // White shield bg
+    ctx.fillStyle   = '#f8f4e8';
+    ctx.strokeStyle = '#5a3500';
+    ctx.lineWidth   = 1.5 * s;
+    ctx.beginPath();
+    ctx.moveTo(-22 * s,  -2 * s);
+    ctx.lineTo( 22 * s,  -2 * s);
+    ctx.lineTo( 22 * s,  20 * s);
+    ctx.quadraticCurveTo(0, 34 * s, -22 * s, 20 * s);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+
+    // Black line at top of shield
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(-22 * s, -2 * s, 44 * s, 5 * s);
+
+    // Sila 1: Bintang emas (center top)
+    drawStar(ctx, 0, 8 * s, 5, 6 * s, 2.5 * s, '#f0c020', '#7a4f00');
+
+    // Sila 2: Rantai (kiri)
+    ctx.strokeStyle = '#8a1a1a';
+    ctx.lineWidth   = 1.2 * s;
+    ctx.beginPath(); ctx.arc(-13 * s, 13 * s, 2.5 * s, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc( -8 * s, 16 * s, 2.5 * s, 0, Math.PI * 2); ctx.stroke();
+
+    // Sila 3: Beringin (kanan)
+    ctx.fillStyle = '#1e5a2e';
+    ctx.fillRect(12 * s, 10 * s, 1.5 * s, 8 * s);
+    ctx.beginPath(); ctx.arc(12.5 * s, 9 * s, 4 * s, 0, Math.PI * 2); ctx.fill();
+
+    // Sila 4: Kepala banteng (kiri bawah)
+    ctx.fillStyle = '#1a1a1a';
+    ctx.beginPath(); ctx.arc(-12 * s, 24 * s, 3.5 * s, 0, Math.PI * 2); ctx.fill();
+
+    // Sila 5: Padi & kapas (kanan bawah)
+    ctx.fillStyle = '#c9a02b';
+    ctx.beginPath(); ctx.arc(12 * s, 24 * s, 2.5 * s, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc( 8 * s, 27 * s, 2.0 * s, 0, Math.PI * 2); ctx.fill();
+
+    /* -------- RIBBON (Bhinneka Tunggal Ika) -------- */
+    ctx.fillStyle   = '#f8f4e8';
+    ctx.strokeStyle = '#5a3500';
+    ctx.lineWidth   = 1 * s;
+    ctx.beginPath();
+    ctx.moveTo(-32 * s, 36 * s);
+    ctx.quadraticCurveTo(0, 42 * s, 32 * s, 36 * s);
+    ctx.lineTo( 34 * s, 42 * s);
+    ctx.quadraticCurveTo(0, 48 * s, -34 * s, 42 * s);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#3a2010';
+    ctx.font = `bold ${5 * s}px Georgia, serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('BHINNEKA TUNGGAL IKA', 0, 43.2 * s);
+
+    ctx.restore();
+  }
+
   function makeFlagTexture() {
     const c = document.createElement('canvas');
-    c.width = 256; c.height = 160;
+    c.width = 512; c.height = 320;
     const ctx = c.getContext('2d');
-    ctx.fillStyle = '#ce1126'; ctx.fillRect(0, 0, 256, 80);
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 80, 256, 80);
+    // Merah atas
+    ctx.fillStyle = '#ce1126';
+    ctx.fillRect(0, 0, 512, 160);
+    // Putih bawah
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 160, 512, 160);
+    // Garuda Pancasila di tengah (menumpuk merah & putih)
+    drawGaruda(ctx, 256, 155, 105);
     return new THREE.CanvasTexture(c);
   }
 
+  function makeCrossOverlay() {
+    const c = document.createElement('canvas');
+    c.width = 512; c.height = 320;
+    const ctx = c.getContext('2d');
+    ctx.strokeStyle = '#ff1a1a';
+    ctx.lineWidth   = 34;
+    ctx.lineCap     = 'round';
+    ctx.shadowColor = '#000';
+    ctx.shadowBlur  = 26;
+    ctx.beginPath();
+    ctx.moveTo( 55,  45); ctx.lineTo(457, 275);
+    ctx.moveTo(457,  45); ctx.lineTo( 55, 275);
+    ctx.stroke();
+    return new THREE.CanvasTexture(c);
+  }
+
+  /* ---------- THREE.JS SCENE ---------- */
   function init() {
     canvas = document.getElementById('fb-canvas');
-    scene = new THREE.Scene();
+    scene  = new THREE.Scene();
+
     const w = canvas.parentElement.clientWidth;
     const h = canvas.parentElement.clientHeight;
 
@@ -784,27 +232,54 @@ const Feedback3D = (() => {
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     renderer.setSize(w, h, false);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-    const d1 = new THREE.DirectionalLight(0xffffff, 1.1);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.95));
+    const d1 = new THREE.DirectionalLight(0xffffff, 1.15);
     d1.position.set(2, 3, 5); scene.add(d1);
+    const d2 = new THREE.DirectionalLight(0xffd76a, 0.5);
+    d2.position.set(-3, -1, 3); scene.add(d2);
 
     const flagGroup = new THREE.Group();
     flagGroup.position.set(0, -0.3, -1.5);
 
-    // Pole
+    // Tiang bendera
     const poleMesh = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.05, 0.05, 2.6, 12),
-      new THREE.MeshStandardMaterial({ color: 0x9aa3b8, metalness: 0.85, roughness: 0.25 })
+      new THREE.CylinderGeometry(0.05, 0.05, 2.8, 12),
+      new THREE.MeshStandardMaterial({ color: 0x9aa3b8, metalness: 0.9, roughness: 0.25 })
     );
     poleMesh.position.set(-1.7, 0, 0);
     flagGroup.add(poleMesh);
 
-    // Flag
-    flagGeo = new THREE.PlaneGeometry(3.4, 1.9, 30, 20);
+    // Bola emas puncak tiang
+    const ball = new THREE.Mesh(
+      new THREE.SphereGeometry(0.09, 16, 12),
+      new THREE.MeshStandardMaterial({ color: 0xffd76a, metalness: 0.9, roughness: 0.2 })
+    );
+    ball.position.set(-1.7, 1.42, 0);
+    flagGroup.add(ball);
+
+    // Kain bendera
+    flagGeo = new THREE.PlaneGeometry(3.4, 2.1, 32, 22);
     flagBasePositions = flagGeo.attributes.position.array.slice();
-    const flagMat = new THREE.MeshStandardMaterial({ map: makeFlagTexture(), side: THREE.DoubleSide, roughness: 0.7 });
+    flagMat = new THREE.MeshStandardMaterial({
+      map: makeFlagTexture(),
+      side: THREE.DoubleSide,
+      roughness: 0.75,
+      metalness: 0.05
+    });
     const flagMesh = new THREE.Mesh(flagGeo, flagMat);
     flagGroup.add(flagMesh);
+
+    // Overlay silang merah (tampil hanya saat salah)
+    const xTex = makeCrossOverlay();
+    xOverlayMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(3.4, 2.1),
+      new THREE.MeshBasicMaterial({ map: xTex, transparent: true, depthTest: false })
+    );
+    xOverlayMesh.position.copy(flagMesh.position);
+    xOverlayMesh.position.z += 0.02;
+    xOverlayMesh.visible = false;
+    flagGroup.add(xOverlayMesh);
+
     scene.add(flagGroup);
 
     animate();
@@ -823,399 +298,62 @@ const Feedback3D = (() => {
   function animate() {
     requestAnimationFrame(animate);
     const t = clock.getElapsedTime();
+
     if (flagGeo && flagBasePositions) {
       const pos = flagGeo.attributes.position;
       for (let i = 0; i < pos.count; i++) {
         const bx = flagBasePositions[i * 3];
-        const factor = (bx + 1.7) / 3.4;
+        const factor = (bx + 1.7) / 3.4; // 0 kiri (dekat tiang) → 1 kanan (ujung)
         let z = 0;
         if (waving) {
-          z = Math.sin((bx + 1.7) * 2.6 + t * 5) * 0.3 * factor
-              + Math.sin((bx + 1.7) * 5.5 + t * 3) * 0.06 * factor;
+          // BERKIBAR — gelombang kuat & hidup
+          z = Math.sin((bx + 1.7) * 2.8 + t * 5.5) * 0.32 * factor
+            + Math.sin((bx + 1.7) * 5.8 + t * 3.2) * 0.07 * factor
+            + Math.sin((bx + 1.7) * 1.4 + t * 2.1) * 0.12 * factor;
         } else {
-          z = Math.sin((bx + 1.7) * 1.5) * 0.02 * factor;
+          // TIDAK BERKIBAR — hampir rata, sedikit melengkung diam
+          z = Math.sin((bx + 1.7) * 1.2) * 0.015 * factor;
         }
         pos.setZ(i, z);
       }
       pos.needsUpdate = true;
       flagGeo.computeVertexNormals();
     }
+
     renderer.render(scene, camera);
   }
 
   return {
     init,
-    setWaving(v) { waving = v; }
-  };
-})();
+    show(correct) {
+      waving = correct;
+      if (xOverlayMesh) xOverlayMesh.visible = !correct;
 
-/* =========================================================
-   THREE.JS: REWARD (tanaman tumbuh)
-   ========================================================= */
-const Reward3D = (() => {
-  let scene, camera, renderer, canvas;
-  let plantGroup, seedMesh, stemMesh, leavesGroup, budMesh, flowerGroup, fruitsGroup;
-  let started = false, startTime = 0, callback = null;
-  let clock = new THREE.Clock();
-  const totalStages = 6;
+      const txt = document.getElementById('fb-text');
+      const sub = document.getElementById('fb-sub');
+      const btn = document.getElementById('fb-btn');
 
-  function buildPlant() {
-    const g = new THREE.Group();
+      // Update gambar Pancasila (SVG di atas canvas)
+      const wrap = document.getElementById('pancasila-wrap');
+      if (wrap && typeof pancasilaSVG === 'function') {
+        wrap.innerHTML = pancasilaSVG(correct ? 'correct' : 'wrong');
+        wrap.style.animation = 'none';
+        void wrap.offsetWidth;
+        wrap.style.animation = '';
+      }
 
-    const pot = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.85, 0.65, 0.7, 24),
-      new THREE.MeshStandardMaterial({ color: 0x8b4a2b, roughness: 0.9 })
-    );
-    pot.position.y = -1.4;
-    g.add(pot);
-
-    const soil = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.82, 0.82, 0.1, 24),
-      new THREE.MeshStandardMaterial({ color: 0x3a1f10, roughness: 1 })
-    );
-    soil.position.y = -1.05;
-    g.add(soil);
-
-    seedMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(0.18, 16, 12),
-      new THREE.MeshStandardMaterial({ color: 0x8a5a2b, roughness: 0.9 })
-    );
-    seedMesh.scale.set(1, 1.25, 1);
-    seedMesh.position.y = -0.95;
-    g.add(seedMesh);
-
-    stemMesh = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.06, 0.08, 1.8, 12),
-      new THREE.MeshStandardMaterial({ color: 0x2f8a3a, roughness: 0.8 })
-    );
-    stemMesh.position.y = -0.05;
-    stemMesh.scale.y = 0.001;
-    g.add(stemMesh);
-
-    leavesGroup = new THREE.Group();
-    const leafMat = new THREE.MeshStandardMaterial({ color: 0x3fbf55, roughness: 0.7, side: THREE.DoubleSide });
-    [[-0.4,0.6,1],[-0.05,-0.6,-1],[0.25,0.8,1],[0.5,-0.8,-1]].forEach(lp => {
-      const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 8), leafMat);
-      leaf.scale.set(1.4, 0.25, 0.7);
-      leaf.position.set(lp[2] * 0.28, lp[0], 0);
-      leaf.rotation.z = lp[1] * lp[2];
-      leavesGroup.add(leaf);
-    });
-    leavesGroup.visible = false;
-    g.add(leavesGroup);
-
-    budMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(0.2, 16, 12),
-      new THREE.MeshStandardMaterial({ color: 0xff8fb0, roughness: 0.6 })
-    );
-    budMesh.position.y = 0.95;
-    budMesh.visible = false;
-    g.add(budMesh);
-
-    flowerGroup = new THREE.Group();
-    const petalMat = new THREE.MeshStandardMaterial({ color: 0xff5a8a, roughness: 0.55 });
-    const centerMat = new THREE.MeshStandardMaterial({ color: 0xffd54a, emissive: 0xffaa00, emissiveIntensity: 0.4, roughness: 0.5 });
-    flowerGroup.add(new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 12), centerMat));
-    for (let i = 0; i < 8; i++) {
-      const petal = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 8), petalMat);
-      petal.scale.set(1.4, 0.6, 0.9);
-      const a = (i / 8) * Math.PI * 2;
-      petal.position.set(Math.cos(a) * 0.24, Math.sin(a) * 0.24, 0);
-      petal.rotation.z = a;
-      flowerGroup.add(petal);
-    }
-    flowerGroup.position.y = 1.15;
-    flowerGroup.visible = false;
-    g.add(flowerGroup);
-
-    fruitsGroup = new THREE.Group();
-    const fruitMat = new THREE.MeshStandardMaterial({ color: 0xff2a3a, roughness: 0.4, emissive: 0x330000, emissiveIntensity: 0.2 });
-    [[0.45,0.1,0.05],[-0.5,-0.3,0.1],[0.35,-0.65,-0.1]].forEach(fo => {
-      const f = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 12), fruitMat);
-      f.position.set(fo[0], fo[1], fo[2]);
-      fruitsGroup.add(f);
-    });
-    fruitsGroup.visible = false;
-    g.add(fruitsGroup);
-
-    return g;
-  }
-
-  function init() {
-    canvas = document.getElementById('reward-canvas');
-    scene = new THREE.Scene();
-    const w = canvas.parentElement.clientWidth;
-    const h = canvas.parentElement.clientHeight;
-    camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
-    camera.position.set(0, 0.3, 5);
-    camera.lookAt(0, 0, 0);
-
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.setSize(w, h, false);
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.95));
-    const d1 = new THREE.DirectionalLight(0xffffff, 1.2);
-    d1.position.set(3, 5, 4); scene.add(d1);
-    const d2 = new THREE.DirectionalLight(0x6cff9a, 0.5);
-    d2.position.set(-4, 2, 3); scene.add(d2);
-
-    plantGroup = buildPlant();
-    scene.add(plantGroup);
-
-    const ground = new THREE.Mesh(
-      new THREE.CircleGeometry(2.5, 32),
-      new THREE.MeshBasicMaterial({ color: 0x1f3a6a, transparent: true, opacity: 0.35 })
-    );
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -1.78;
-    scene.add(ground);
-
-    animate();
-    window.addEventListener('resize', onResize);
-  }
-
-  function onResize() {
-    if (!renderer) return;
-    const w = canvas.parentElement.clientWidth;
-    const h = canvas.parentElement.clientHeight;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-  }
-
-  function setStage(stage) {
-    seedMesh.visible = stage < 1;
-    stemMesh.scale.y = Math.max(0.001, Math.min(1, stage / 3));
-    stemMesh.position.y = -0.9 + stemMesh.scale.y * 0.85;
-    leavesGroup.visible = stage >= 2;
-    if (leavesGroup.visible) leavesGroup.scale.setScalar(Math.min(1, (stage - 1) / 2));
-    budMesh.visible = stage >= 3 && stage < 4;
-    flowerGroup.visible = stage >= 4;
-    if (flowerGroup.visible) flowerGroup.scale.setScalar(Math.min(1, (stage - 3) / 1.5));
-    fruitsGroup.visible = stage >= 5;
-    if (fruitsGroup.visible) fruitsGroup.scale.setScalar(Math.min(1, (stage - 4) / 1.5));
-  }
-
-  function animate() {
-    requestAnimationFrame(animate);
-    const t = clock.getElapsedTime();
-    if (started) {
-      const elapsed = (performance.now() - startTime) / 1000;
-      const progressRatio = Math.min(1, elapsed / 4.5);
-      setStage(progressRatio * totalStages);
-      plantGroup.rotation.y = Math.sin(t * 0.6) * 0.08;
-      if (progressRatio >= 1 && callback) {
-        const cb = callback; callback = null;
-        cb();
+      if (correct) {
+        txt.textContent = 'BENAR! 🇮🇩';
+        txt.className   = 'fb-text ok';
+        sub.textContent = 'Pancasila dijunjung tinggi — bendera Garuda berkibar bangga!';
+        btn.classList.add('hidden');
+      } else {
+        txt.textContent = 'SALAH ✕';
+        txt.className   = 'fb-text no';
+        sub.textContent = 'Bendera tidak berkibar. Pancasila disilang! Kamu harus mengulang level ini dari awal.';
+        btn.classList.remove('hidden');
+        btn.textContent = '🔄 Ulangi Level';
       }
     }
-    renderer.render(scene, camera);
-  }
-
-  return {
-    init,
-    start(cb) {
-      started = true;
-      startTime = performance.now();
-      callback = cb;
-      setStage(0);
-      plantGroup.rotation.y = 0;
-    }
   };
 })();
-
-/* =========================================================
-   THREE.JS: GARDEN
-   ========================================================= */
-const Garden3D = (() => {
-  let scene, camera, renderer, canvas, group;
-  let clock = new THREE.Clock();
-  let inited = false;
-
-  function buildMiniPlant() {
-    const g = new THREE.Group();
-    const pot = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.42, 0.34, 0.5, 20),
-      new THREE.MeshStandardMaterial({ color: 0x8b4a2b, roughness: 0.9 })
-    );
-    pot.position.y = -0.7;
-    g.add(pot);
-
-    const soil = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.4, 0.4, 0.08, 20),
-      new THREE.MeshStandardMaterial({ color: 0x3a1f10 })
-    );
-    soil.position.y = -0.46;
-    g.add(soil);
-
-    const stem = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.035, 0.05, 1.0, 10),
-      new THREE.MeshStandardMaterial({ color: 0x2f8a3a })
-    );
-    stem.position.y = 0.05;
-    g.add(stem);
-
-    const leafMat = new THREE.MeshStandardMaterial({ color: 0x3fbf55, side: THREE.DoubleSide });
-    [[-0.15,0.0,0.6],[0.15,0.25,-0.6]].forEach(lp => {
-      const l = new THREE.Mesh(new THREE.SphereGeometry(0.13, 10, 8), leafMat);
-      l.scale.set(1.4, 0.28, 0.7);
-      l.position.set(lp[0], lp[1], 0);
-      l.rotation.z = lp[2];
-      g.add(l);
-    });
-
-    const flowerG = new THREE.Group();
-    flowerG.add(new THREE.Mesh(
-      new THREE.SphereGeometry(0.08, 12, 10),
-      new THREE.MeshStandardMaterial({ color: 0xffd54a, emissive: 0xffaa00, emissiveIntensity: 0.5 })
-    ));
-    for (let i = 0; i < 7; i++) {
-      const p = new THREE.Mesh(
-        new THREE.SphereGeometry(0.09, 10, 8),
-        new THREE.MeshStandardMaterial({ color: 0xff5a8a, roughness: 0.5 })
-      );
-      p.scale.set(1.4, 0.6, 0.9);
-      const a = (i / 7) * Math.PI * 2;
-      p.position.set(Math.cos(a) * 0.14, Math.sin(a) * 0.14, 0);
-      p.rotation.z = a;
-      flowerG.add(p);
-    }
-    flowerG.position.y = 0.58;
-    g.add(flowerG);
-
-    const fruitMat = new THREE.MeshStandardMaterial({ color: 0xff2a3a, emissive: 0x330000, emissiveIntensity: 0.25 });
-    [[0.22,0.15,0],[-0.24,-0.15,0.05],[0.18,-0.35,-0.05]].forEach(fp => {
-      const f = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 10), fruitMat);
-      f.position.set(fp[0], fp[1], fp[2]);
-      g.add(f);
-    });
-
-    return g;
-  }
-
-  function init() {
-    canvas = document.getElementById('garden-canvas');
-    scene = new THREE.Scene();
-    const w = canvas.parentElement.clientWidth;
-    const h = canvas.parentElement.clientHeight || 400;
-
-    camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 100);
-    camera.position.set(0, 1.2, 6);
-    camera.lookAt(0, 0, 0);
-
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.setSize(w, h, false);
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-    const d = new THREE.DirectionalLight(0xffffff, 1.1);
-    d.position.set(2, 5, 4); scene.add(d);
-    const d2 = new THREE.DirectionalLight(0x6cff9a, 0.5);
-    d2.position.set(-3, 2, 3); scene.add(d2);
-
-    group = new THREE.Group();
-    scene.add(group);
-
-    animate();
-    window.addEventListener('resize', onResize);
-    inited = true;
-  }
-
-  function onResize() {
-    if (!renderer) return;
-    const w = canvas.parentElement.clientWidth;
-    const h = canvas.parentElement.clientHeight || 400;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-  }
-
-  function animate() {
-    requestAnimationFrame(animate);
-    const t = clock.getElapsedTime();
-    if (group) group.rotation.y = Math.sin(t * 0.3) * 0.15;
-    renderer.render(scene, camera);
-  }
-
-  return {
-    init,
-    refresh() {
-      if (!group) return;
-      while (group.children.length) group.remove(group.children[0]);
-      const n = Math.min(progress.plants, 8);
-      if (n === 0) return;
-      const totalW = (n - 1) * 1.1;
-      for (let i = 0; i < n; i++) {
-        const p = buildMiniPlant();
-        p.position.x = -totalW / 2 + i * 1.1;
-        p.position.y = -0.2;
-        group.add(p);
-      }
-    },
-    isInited() { return inited; }
-  };
-})();
-
-/* =========================================================
-   EVENTS
-   ========================================================= */
-function bindEvents() {
-  // Material back
-  $('#mat-back').addEventListener('click', () => {
-    showScreen('screen-home');
-    renderHome();
-  });
-
-  // Start quiz from material
-  $('#btn-start-quiz').addEventListener('click', () => {
-    startLevel(current.levelIdx);
-  });
-
-  // Quiz back
-  $('#btn-back').addEventListener('click', () => {
-    showScreen('screen-home');
-    renderHome();
-  });
-
-  // Feedback restart
-  $('#fb-btn').addEventListener('click', () => {
-    startLevel(current.levelIdx);
-  });
-
-  // Reward home
-  $('#reward-btn').addEventListener('click', () => {
-    showScreen('screen-home');
-    renderHome();
-  });
-
-  // Garden
-  $('#btn-garden').addEventListener('click', () => {
-    showScreen('screen-garden');
-    setTimeout(() => {
-      if (!Garden3D.isInited()) Garden3D.init();
-      Garden3D.refresh();
-    }, 80);
-  });
-
-  $('#garden-back').addEventListener('click', () => {
-    showScreen('screen-home');
-    renderHome();
-  });
-}
-
-/* =========================================================
-   INIT
-   ========================================================= */
-function init() {
-  Feedback3D.init();
-  Reward3D.init();
-  bindEvents();
-  renderHome();
-  showScreen('screen-home');
-}
-
-window.addEventListener('load', init);
-</script>
-</body>
-</html>
