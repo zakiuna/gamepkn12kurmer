@@ -23,7 +23,6 @@
   .screen.overlay { padding: 0; justify-content: center; align-items: center; overflow: hidden; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px);} to {opacity:1; transform: none;} }
 
-  /* HOME */
   .home-header { text-align: center; margin: 8px 0 18px; }
   .home-header h1 {
     font-size: 30px; font-weight: 900; letter-spacing: 2px;
@@ -68,7 +67,6 @@
   }
   .btn-garden:active { transform: scale(.97); }
 
-  /* MATERIAL SCREEN */
   .mat-top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
   .btn-back {
     width: 38px; height: 38px; border-radius: 10px; border: 1px solid rgba(255,255,255,.16);
@@ -86,7 +84,6 @@
   }
   .mat-body h3 {
     font-size: 14px; color: #ffd76a; margin: 14px 0 6px; letter-spacing: .5px;
-    display: flex; align-items: center; gap: 8px;
   }
   .mat-body h3:first-child { margin-top: 0; }
   .mat-body p { margin-bottom: 8px; }
@@ -105,7 +102,6 @@
   }
   .btn-start-quiz:active { transform: scale(.97); }
 
-  /* QUIZ */
   .quiz-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
   .quiz-info { flex: 1; min-width: 0; }
   .quiz-bab { font-size: 10px; letter-spacing: 2px; color: #ffd76a; font-weight: 800; }
@@ -139,7 +135,6 @@
   .opt.wrong { background: linear-gradient(135deg, rgba(255,60,60,.35), rgba(255,60,60,.1)); border-color: #ff3c3c; }
   .opt:disabled { cursor: default; }
 
-  /* FEEDBACK / REWARD */
   #screen-feedback, #screen-reward {
     background: radial-gradient(circle at 50% 40%, #16224a 0%, #060a1e 80%);
   }
@@ -151,7 +146,7 @@
     padding: 40px 24px; text-align: center;
   }
   .pancasila-wrap {
-    position: relative; width: 220px; height: 220px; margin-bottom: 12px;
+    position: relative; width: 200px; height: 200px; margin-bottom: 8px;
     filter: drop-shadow(0 12px 30px rgba(0,0,0,.55));
     animation: emblemIn .6s cubic-bezier(.2,.9,.3,1.3);
   }
@@ -163,7 +158,7 @@
   .pancasila-wrap svg { width: 100%; height: 100%; display: block; }
 
   .fb-text {
-    font-size: 30px; font-weight: 900; letter-spacing: 3px;
+    font-size: 28px; font-weight: 900; letter-spacing: 3px;
     text-shadow: 0 4px 24px rgba(0,0,0,.6); margin-bottom: 4px;
   }
   .fb-text.ok { color: #6cff9a; }
@@ -183,7 +178,6 @@
   .btn-primary:active { transform: scale(.96); }
   .btn-primary.hidden { display: none; }
 
-  /* REWARD */
   .reward-badge {
     position: relative; font-size: 56px; z-index: 2;
     opacity: 0; transition: opacity .5s ease;
@@ -196,7 +190,6 @@
   }
   #screen-reward .fb-content { justify-content: flex-end; padding-bottom: 100px; }
 
-  /* GARDEN */
   .garden-header { text-align: center; margin-bottom: 8px; }
   .garden-header h2 { font-size: 22px; font-weight: 900; color: #6cff9a; }
   .garden-header p { font-size: 12px; color: #93a4d8; margin-top: 4px; }
@@ -208,7 +201,6 @@
 <body>
 <div id="app">
 
-  <!-- HOME -->
   <div id="screen-home" class="screen active">
     <div class="home-header">
       <h1>PKN QUEST</h1>
@@ -222,7 +214,6 @@
     <button class="btn-garden" id="btn-garden">🌱 Lihat Kebun Pancasila</button>
   </div>
 
-  <!-- MATERIAL -->
   <div id="screen-material" class="screen">
     <div class="mat-top">
       <button class="btn-back" id="mat-back">←</button>
@@ -235,7 +226,6 @@
     <button class="btn-start-quiz" id="btn-start-quiz">📝 Mulai Kuis (10 Soal)</button>
   </div>
 
-  <!-- QUIZ -->
   <div id="screen-quiz" class="screen">
     <div class="quiz-top">
       <button class="btn-back" id="btn-back">←</button>
@@ -253,7 +243,6 @@
     <div class="options" id="options"></div>
   </div>
 
-  <!-- FEEDBACK -->
   <div id="screen-feedback" class="screen overlay">
     <canvas id="fb-canvas"></canvas>
     <div class="fb-content">
@@ -264,7 +253,6 @@
     </div>
   </div>
 
-  <!-- REWARD -->
   <div id="screen-reward" class="screen overlay">
     <canvas id="reward-canvas"></canvas>
     <div class="fb-content">
@@ -274,7 +262,6 @@
     </div>
   </div>
 
-  <!-- GARDEN -->
   <div id="screen-garden" class="screen">
     <div class="garden-header">
       <h2>🌿 Kebun Pancasila</h2>
@@ -289,7 +276,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 /* =========================================================
-   DATA: MATERI + SOAL (10 per BAB)
+   DATA: MATERI + SOAL
    ========================================================= */
 const QUIZ_DATA = [
   {
@@ -298,7 +285,6 @@ const QUIZ_DATA = [
       <h3>📖 Pengertian Hak dan Kewajiban</h3>
       <p><b>Hak</b> adalah sesuatu yang mutlak menjadi milik seseorang dan penggunaannya bergantung pada diri sendiri. <b>Kewajiban</b> adalah sesuatu yang harus dilaksanakan dengan penuh tanggung jawab.</p>
       <div class="highlight">Hak dan kewajiban adalah dua hal yang tidak bisa dipisahkan — keduanya harus dilaksanakan secara <b>seimbang</b>.</div>
-
       <h3>⚖️ Dasar Hukum di UUD NRI 1945</h3>
       <ul>
         <li><b>Pasal 27 ayat 1</b> — kesamaan kedudukan di depan hukum</li>
@@ -310,7 +296,6 @@ const QUIZ_DATA = [
         <li><b>Pasal 31</b> — hak mendapat pendidikan</li>
         <li><b>Pasal 33 & 34</b> — kesejahteraan sosial & ekonomi</li>
       </ul>
-
       <h3>🇮🇩 Contoh Hak Warga Negara</h3>
       <ul>
         <li>Hak hidup dan mempertahankan kehidupan</li>
@@ -319,7 +304,6 @@ const QUIZ_DATA = [
         <li>Hak memilih dan dipilih dalam pemilu</li>
         <li>Hak mendapat perlindungan hukum</li>
       </ul>
-
       <h3>🤝 Contoh Kewajiban Warga Negara</h3>
       <ul>
         <li>Membayar pajak tepat waktu</li>
@@ -328,7 +312,6 @@ const QUIZ_DATA = [
         <li>Menaati hukum yang berlaku</li>
         <li>Ikut serta dalam pembangunan nasional</li>
       </ul>
-
       <h3>💡 Nilai Pancasila Terkait</h3>
       <p>Sila <b>kedua</b> (Kemanusiaan yang adil dan beradab) dan sila <b>kelima</b> (Keadilan sosial) menjadi landasan moral dalam mewujudkan keseimbangan hak dan kewajiban seluruh warga negara.</p>
     `,
@@ -350,7 +333,6 @@ const QUIZ_DATA = [
     material: `
       <h3>🇮🇩 Bhinneka Tunggal Ika</h3>
       <p>Semboyan bangsa Indonesia yang berarti <b>"berbeda-beda tetapi tetap satu"</b>. Menjadi perekat keberagaman suku, agama, ras, dan budaya dalam satu kesatuan NKRI.</p>
-
       <h3>📜 Tonggak Persatuan Indonesia</h3>
       <ul>
         <li><b>1908</b> — Kebangkitan Nasional (Budi Utomo)</li>
@@ -358,7 +340,6 @@ const QUIZ_DATA = [
         <li><b>17 Agustus 1945</b> — Proklamasi Kemerdekaan</li>
         <li><b>18 Agustus 1945</b> — Pengesahan UUD NRI 1945</li>
       </ul>
-
       <h3>🛡️ Ancaman terhadap NKRI</h3>
       <p><b>Ancaman Internal (dari dalam):</b></p>
       <ul>
@@ -374,10 +355,8 @@ const QUIZ_DATA = [
         <li>Terorisme internasional</li>
         <li>Pengaruh ideologi asing</li>
       </ul>
-
       <h3>🌏 Wawasan Nusantara</h3>
       <p>Cara pandang bangsa Indonesia tentang diri dan tanah airnya sebagai negara kepulauan dengan keanekaragaman budaya, agama, dan adat istiadat untuk mencapai tujuan nasional.</p>
-
       <h3>⚔️ Sistem Pertahanan</h3>
       <p><b>Sishankamrata</b> (Sistem Pertahanan Keamanan Rakyat Semesta) — melibatkan seluruh rakyat, wilayah, dan sumber daya nasional. Diatur dalam Pasal 30 UUD NRI 1945.</p>
     `,
@@ -400,20 +379,17 @@ const QUIZ_DATA = [
       <h3>📖 Pengertian Hukum</h3>
       <p>Hukum adalah kumpulan peraturan yang dibuat oleh negara untuk mengatur tingkah laku manusia dalam masyarakat, bersifat <b>memaksa</b> dan memiliki <b>sanksi tegas</b>.</p>
       <div class="highlight">Asas hukum pidana: <b>"Nullum delictum nulla poena sine praevia lege"</b> — tidak ada pidana tanpa undang-undang yang mengaturnya lebih dulu.</div>
-
       <h3>🎯 Tujuan Hukum</h3>
       <ul>
         <li><b>Keadilan</b> (teori etis)</li>
         <li><b>Kepastian</b> (teori yuridis)</li>
         <li><b>Kemanfaatan</b> (teori utilitas)</li>
       </ul>
-
       <h3>⚖️ Pembagian Hukum</h3>
       <ul>
-        <li><b>Hukum Publik</b> — mengatur hubungan warga negara dengan negara (contoh: hukum tata negara, hukum pidana, hukum administrasi)</li>
-        <li><b>Hukum Privat</b> — mengatur hubungan antar warga negara (contoh: hukum perdata, hukum dagang)</li>
+        <li><b>Hukum Publik</b> — mengatur hubungan warga negara dengan negara</li>
+        <li><b>Hukum Privat</b> — mengatur hubungan antar warga negara</li>
       </ul>
-
       <h3>🏛️ Lembaga Peradilan Indonesia</h3>
       <ul>
         <li><b>Mahkamah Agung (MA)</b> — peradilan tertinggi, mengadili tingkat kasasi</li>
@@ -425,7 +401,6 @@ const QUIZ_DATA = [
         <li><b>Pengadilan Agama</b> — perkara perdata Islam</li>
         <li><b>Pengadilan Militer</b> — perkara anggota TNI</li>
       </ul>
-
       <h3>📜 Hierarki Peraturan Perundang-undangan</h3>
       <p>UUD NRI 1945 → TAP MPR → UU/Perppu → Perpres → Perda. Pancasila adalah <b>sumber dari segala sumber hukum</b>.</p>
     `,
@@ -447,7 +422,6 @@ const QUIZ_DATA = [
     material: `
       <h3>📖 Pengertian Pelanggaran HAM</h3>
       <p>Pelanggaran HAM adalah perbuatan yang mengurangi, menghilangkan, atau membatasi hak asasi seseorang/kelompok baik disengaja maupun tidak.</p>
-
       <h3>⚠️ Faktor Penyebab Pelanggaran HAM</h3>
       <p><b>Faktor Internal:</b></p>
       <ul>
@@ -463,7 +437,6 @@ const QUIZ_DATA = [
         <li>Kesenjangan sosial & ekonomi</li>
         <li>Globalisasi & masuknya ideologi asing</li>
       </ul>
-
       <h3>🔍 Contoh Kasus di Indonesia</h3>
       <ul>
         <li>Kerusuhan Mei 1998</li>
@@ -471,7 +444,6 @@ const QUIZ_DATA = [
         <li>Konflik horizontal antar kelompok</li>
         <li>Kasus Timor Timur (pra-referendum)</li>
       </ul>
-
       <h3>⚖️ Dasar Hukum & Lembaga</h3>
       <ul>
         <li><b>UU No. 39 Tahun 1999</b> tentang HAM</li>
@@ -479,13 +451,11 @@ const QUIZ_DATA = [
         <li><b>Komnas HAM</b> — lembaga pengkajian & pemantauan HAM</li>
         <li><b>Pengadilan HAM</b> — bersifat <i>ad hoc</i> & permanen</li>
       </ul>
-
       <h3>🛡️ Upaya Penegakan HAM</h3>
       <ul>
         <li><b>Preventif</b> — sosialisasi, edukasi, penyuluhan HAM</li>
         <li><b>Represif</b> — penindakan, penyelesaian perkara, sanksi hukum</li>
       </ul>
-
       <h3>🤝 Peran Serta Masyarakat</h3>
       <p>Melaporkan pelanggaran ke pihak berwenang, tidak main hakim sendiri, menghormati hak orang lain, dan mendukung penegakan hukum yang adil.</p>
     `,
@@ -505,11 +475,9 @@ const QUIZ_DATA = [
 ];
 
 /* =========================================================
-   SVG PANCASILA (untuk feedback benar/salah)
+   SVG PANCASILA (badge)
    ========================================================= */
 function pancasilaSVG(mode) {
-  // mode: 'correct' | 'wrong'
-  const stroke = mode === 'correct' ? '#2ecc71' : '#ff3c3c';
   const mark = mode === 'correct' ? `
     <g transform="translate(160,160)">
       <circle r="34" fill="#0a4d28" stroke="#2ecc71" stroke-width="4"/>
@@ -522,7 +490,6 @@ function pancasilaSVG(mode) {
       <line x1="14" y1="-14" x2="-14" y2="14" stroke="#ff5a5a" stroke-width="7" stroke-linecap="round"/>
     </g>
   `;
-
   return `
   <svg viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -531,34 +498,19 @@ function pancasilaSVG(mode) {
         <stop offset="55%" stop-color="#ffd54a"/>
         <stop offset="100%" stop-color="#b8860b"/>
       </radialGradient>
-      <linearGradient id="shield${mode}" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#fff3b0" stop-opacity="0.35"/>
-        <stop offset="100%" stop-color="#7a5a10" stop-opacity="0.35"/>
-      </linearGradient>
       <filter id="shadow${mode}" x="-20%" y="-20%" width="140%" height="140%">
         <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.55"/>
       </filter>
     </defs>
-
-    <!-- Shield / cakra gold -->
     <circle cx="160" cy="150" r="118" fill="url(#gold${mode})" stroke="#7a5a10" stroke-width="6" filter="url(#shadow${mode})"/>
     <circle cx="160" cy="150" r="106" fill="none" stroke="#7a5a10" stroke-width="2" opacity="0.6"/>
-
-    <!-- Ornamental inner ring -->
     <circle cx="160" cy="150" r="98" fill="none" stroke="#7a5a10" stroke-width="1.5" opacity="0.4" stroke-dasharray="4 6"/>
-
-    <!-- Bintang besar (sila 1) -->
     ${starPath(160, 118, 5, 34, 15, '#ff3c3c', '#7a2a00')}
-    <!-- 4 bintang kecil (sila 2-5) -->
     ${starPath(112, 178, 5, 18, 8, '#ff3c3c', '#7a2a00')}
     ${starPath(208, 178, 5, 18, 8, '#ff3c3c', '#7a2a00')}
     ${starPath(130, 216, 5, 16, 7, '#ff3c3c', '#7a2a00')}
     ${starPath(190, 216, 5, 16, 7, '#ff3c3c', '#7a2a00')}
-
-    <!-- Text -->
     <text x="160" y="290" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="bold" fill="#ffd76a" letter-spacing="2">PANCASILA</text>
-
-    <!-- Mark (check/X) -->
     ${mark}
   </svg>`;
 }
@@ -640,7 +592,6 @@ function openMaterial(idx) {
   $('#mat-title').textContent = lv.title;
   $('#mat-body').innerHTML = lv.material;
   showScreen('screen-material');
-  // scroll top
   $('#screen-material').scrollTop = 0;
 }
 
@@ -686,51 +637,23 @@ function answer(picked) {
     if (i === picked && !isCorrect) b.classList.add('wrong');
   });
 
-  if (isCorrect) {
+  // tampilkan feedback
+  setTimeout(() => {
     showScreen('screen-feedback');
-    showFeedback(true);
-    setTimeout(() => {
-      current.qIdx++;
-      if (current.qIdx >= lv.questions.length) {
-        completeLevel();
-      } else {
-        showScreen('screen-quiz');
-        renderQuestion();
-      }
-    }, 1800);
-  } else {
-    showScreen('screen-feedback');
-    showFeedback(false);
-  }
-}
+    Feedback3D.show(isCorrect);
 
-function showFeedback(correct) {
-  // Set pancasila svg
-  $('#pancasila-wrap').innerHTML = pancasilaSVG(correct ? 'correct' : 'wrong');
-  // reset animation
-  const wrap = $('#pancasila-wrap');
-  wrap.style.animation = 'none';
-  void wrap.offsetWidth;
-  wrap.style.animation = '';
-
-  const txt = $('#fb-text');
-  const sub = $('#fb-sub');
-  const btn = $('#fb-btn');
-
-  if (correct) {
-    txt.textContent = 'BENAR! 🇮🇩';
-    txt.className = 'fb-text ok';
-    sub.textContent = 'Pancasila dijunjung tinggi — bendera berkibar bangga! Lanjut ke soal berikutnya...';
-    btn.classList.add('hidden');
-  } else {
-    txt.textContent = 'SALAH ✕';
-    txt.className = 'fb-text no';
-    sub.textContent = 'Bendera tidak berkibar. Pancasila disilang! Kamu harus mengulang level ini dari awal.';
-    btn.classList.remove('hidden');
-    btn.textContent = '🔄 Ulangi Level';
-  }
-
-  Feedback3D.setWaving(correct);
+    if (isCorrect) {
+      setTimeout(() => {
+        current.qIdx++;
+        if (current.qIdx >= lv.questions.length) {
+          completeLevel();
+        } else {
+          showScreen('screen-quiz');
+          renderQuestion();
+        }
+      }, 1800);
+    }
+  }, 250);
 }
 
 /* =========================================================
@@ -754,67 +677,264 @@ function completeLevel() {
 }
 
 /* =========================================================
-   THREE.JS: FEEDBACK BACKGROUND FLAG
+   THREE.JS: FEEDBACK BACKGROUND FLAG (Garuda Pancasila)
    ========================================================= */
 const Feedback3D = (() => {
   let scene, camera, renderer, canvas;
   let flagGeo, flagBasePositions;
+  let xOverlayMesh;
   let waving = false;
   let clock = new THREE.Clock();
+  let built = false;
+
+  function drawStar(ctx, cx, cy, spikes, outer, inner, fill, stroke) {
+    let rot = -Math.PI / 2;
+    const step = Math.PI / spikes;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(rot) * outer, cy + Math.sin(rot) * outer);
+    for (let i = 0; i < spikes; i++) {
+      rot += step;
+      ctx.lineTo(cx + Math.cos(rot) * inner, cy + Math.sin(rot) * inner);
+      rot += step;
+      ctx.lineTo(cx + Math.cos(rot) * outer, cy + Math.sin(rot) * outer);
+    }
+    ctx.closePath();
+    if (fill)   { ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.5; ctx.stroke(); }
+  }
+
+  function drawGaruda(ctx, cx, cy, size) {
+    const s = size / 100;
+    ctx.save();
+    ctx.translate(cx, cy);
+
+    const grad = ctx.createRadialGradient(0, -10 * s, 5, 0, 0, 95 * s);
+    grad.addColorStop(0,    '#fff8cf');
+    grad.addColorStop(0.45, '#f0c020');
+    grad.addColorStop(1,    '#7a4f00');
+
+    ctx.fillStyle   = grad;
+    ctx.strokeStyle = '#5a3500';
+    ctx.lineWidth   = 1.2 * s;
+    ctx.lineJoin    = 'round';
+
+    // Left wing
+    ctx.beginPath();
+    ctx.moveTo(-8 * s, -18 * s);
+    ctx.bezierCurveTo(-30 * s, -48 * s, -70 * s, -55 * s, -92 * s, -32 * s);
+    ctx.bezierCurveTo(-84 * s, -30 * s, -78 * s, -26 * s, -74 * s, -20 * s);
+    ctx.bezierCurveTo(-82 * s, -16 * s, -88 * s,  -8 * s, -90 * s,   0 * s);
+    ctx.bezierCurveTo(-82 * s,  -2 * s, -76 * s,   2 * s, -70 * s,   6 * s);
+    ctx.bezierCurveTo(-78 * s,  12 * s, -82 * s,  22 * s, -80 * s,  30 * s);
+    ctx.bezierCurveTo(-68 * s,  22 * s, -55 * s,  18 * s, -42 * s,  16 * s);
+    ctx.bezierCurveTo(-30 * s,  14 * s, -18 * s,  10 * s, -10 * s,   4 * s);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+
+    // Right wing
+    ctx.beginPath();
+    ctx.moveTo(8 * s, -18 * s);
+    ctx.bezierCurveTo(30 * s, -48 * s, 70 * s, -55 * s, 92 * s, -32 * s);
+    ctx.bezierCurveTo(84 * s, -30 * s, 78 * s, -26 * s, 74 * s, -20 * s);
+    ctx.bezierCurveTo(82 * s, -16 * s, 88 * s,  -8 * s, 90 * s,   0 * s);
+    ctx.bezierCurveTo(82 * s,  -2 * s, 76 * s,   2 * s, 70 * s,   6 * s);
+    ctx.bezierCurveTo(78 * s,  12 * s, 82 * s,  22 * s, 80 * s,  30 * s);
+    ctx.bezierCurveTo(68 * s,  22 * s, 55 * s,  18 * s, 42 * s,  16 * s);
+    ctx.bezierCurveTo(30 * s,  14 * s, 18 * s,  10 * s, 10 * s,   4 * s);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+
+    // Body
+    ctx.beginPath();
+    ctx.moveTo(-8 * s, -18 * s);
+    ctx.bezierCurveTo(-14 * s, 0, -12 * s, 20 * s, -6 * s, 34 * s);
+    ctx.lineTo(6 * s, 34 * s);
+    ctx.bezierCurveTo(12 * s, 20 * s, 14 * s, 0, 8 * s, -18 * s);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+
+    // Head
+    ctx.beginPath();
+    ctx.ellipse(0, -26 * s, 11 * s, 13 * s, 0, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+
+    // Beak
+    ctx.beginPath();
+    ctx.moveTo(9 * s, -30 * s); ctx.lineTo(24 * s, -26 * s); ctx.lineTo(9 * s, -22 * s);
+    ctx.closePath();
+    ctx.fillStyle = '#c98600'; ctx.strokeStyle = '#7a4f00';
+    ctx.fill(); ctx.stroke();
+
+    // Crest
+    ctx.fillStyle = grad;
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(-4 * s + i * 3 * s, -36 * s);
+      ctx.lineTo(-2 * s + i * 3 * s, -47 * s);
+      ctx.lineTo( 2 * s + i * 3 * s, -38 * s);
+      ctx.closePath(); ctx.fill();
+    }
+
+    // Tail
+    ctx.beginPath();
+    ctx.moveTo(-10 * s, 32 * s);
+    ctx.lineTo(-22 * s, 56 * s); ctx.lineTo(-12 * s, 52 * s);
+    ctx.lineTo(-5 * s, 62 * s);  ctx.lineTo(0, 55 * s);
+    ctx.lineTo(5 * s, 62 * s);   ctx.lineTo(12 * s, 52 * s);
+    ctx.lineTo(22 * s, 56 * s);  ctx.lineTo(10 * s, 32 * s);
+    ctx.closePath(); ctx.fillStyle = grad; ctx.fill(); ctx.stroke();
+
+    // Legs
+    ctx.strokeStyle = '#7a4f00'; ctx.lineWidth = 3 * s; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-5 * s, 34 * s); ctx.lineTo(-10 * s, 52 * s);
+    ctx.moveTo( 5 * s, 34 * s); ctx.lineTo( 10 * s, 52 * s);
+    ctx.stroke();
+
+    // Shield
+    ctx.fillStyle = '#f8f4e8'; ctx.strokeStyle = '#5a3500'; ctx.lineWidth = 1.5 * s;
+    ctx.beginPath();
+    ctx.moveTo(-22 * s, -2 * s); ctx.lineTo(22 * s, -2 * s);
+    ctx.lineTo(22 * s, 20 * s);
+    ctx.quadraticCurveTo(0, 34 * s, -22 * s, 20 * s);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#1a1a1a'; ctx.fillRect(-22 * s, -2 * s, 44 * s, 5 * s);
+
+    drawStar(ctx, 0, 8 * s, 5, 6 * s, 2.5 * s, '#f0c020', '#7a4f00');
+
+    ctx.strokeStyle = '#8a1a1a'; ctx.lineWidth = 1.2 * s;
+    ctx.beginPath(); ctx.arc(-13 * s, 13 * s, 2.5 * s, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc( -8 * s, 16 * s, 2.5 * s, 0, Math.PI * 2); ctx.stroke();
+
+    ctx.fillStyle = '#1e5a2e';
+    ctx.fillRect(12 * s, 10 * s, 1.5 * s, 8 * s);
+    ctx.beginPath(); ctx.arc(12.5 * s, 9 * s, 4 * s, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = '#1a1a1a';
+    ctx.beginPath(); ctx.arc(-12 * s, 24 * s, 3.5 * s, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = '#c9a02b';
+    ctx.beginPath(); ctx.arc(12 * s, 24 * s, 2.5 * s, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc( 8 * s, 27 * s, 2.0 * s, 0, Math.PI * 2); ctx.fill();
+
+    // Ribbon
+    ctx.fillStyle = '#f8f4e8'; ctx.strokeStyle = '#5a3500'; ctx.lineWidth = 1 * s;
+    ctx.beginPath();
+    ctx.moveTo(-32 * s, 36 * s);
+    ctx.quadraticCurveTo(0, 42 * s, 32 * s, 36 * s);
+    ctx.lineTo( 34 * s, 42 * s);
+    ctx.quadraticCurveTo(0, 48 * s, -34 * s, 42 * s);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#3a2010';
+    ctx.font = `bold ${5 * s}px Georgia, serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('BHINNEKA TUNGGAL IKA', 0, 43.2 * s);
+
+    ctx.restore();
+  }
 
   function makeFlagTexture() {
     const c = document.createElement('canvas');
-    c.width = 256; c.height = 160;
+    c.width = 512; c.height = 320;
     const ctx = c.getContext('2d');
-    ctx.fillStyle = '#ce1126'; ctx.fillRect(0, 0, 256, 80);
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 80, 256, 80);
+    ctx.fillStyle = '#ce1126'; ctx.fillRect(0, 0, 512, 160);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 160, 512, 160);
+    drawGaruda(ctx, 256, 155, 105);
+    const tex = new THREE.CanvasTexture(c);
+    tex.anisotropy = 4;
+    return tex;
+  }
+
+  function makeCrossOverlay() {
+    const c = document.createElement('canvas');
+    c.width = 512; c.height = 320;
+    const ctx = c.getContext('2d');
+    ctx.strokeStyle = '#ff1a1a';
+    ctx.lineWidth   = 34;
+    ctx.lineCap     = 'round';
+    ctx.shadowColor = '#000';
+    ctx.shadowBlur  = 26;
+    ctx.beginPath();
+    ctx.moveTo( 55,  45); ctx.lineTo(457, 275);
+    ctx.moveTo(457,  45); ctx.lineTo( 55, 275);
+    ctx.stroke();
     return new THREE.CanvasTexture(c);
   }
 
-  function init() {
+  function build() {
+    if (built) return;
     canvas = document.getElementById('fb-canvas');
-    scene = new THREE.Scene();
-    const w = canvas.parentElement.clientWidth;
-    const h = canvas.parentElement.clientHeight;
+    if (!canvas) return;
 
+    const parent = canvas.parentElement;
+    const w = parent.clientWidth  || window.innerWidth;
+    const h = parent.clientHeight || window.innerHeight;
+
+    scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 100);
-    camera.position.set(0, 0, 6.5);
+    camera.position.set(0, 0, 6);
 
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     renderer.setSize(w, h, false);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-    const d1 = new THREE.DirectionalLight(0xffffff, 1.1);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.95));
+    const d1 = new THREE.DirectionalLight(0xffffff, 1.15);
     d1.position.set(2, 3, 5); scene.add(d1);
+    const d2 = new THREE.DirectionalLight(0xffd76a, 0.5);
+    d2.position.set(-3, -1, 3); scene.add(d2);
 
     const flagGroup = new THREE.Group();
-    flagGroup.position.set(0, -0.3, -1.5);
+    flagGroup.position.set(0, -0.2, -1.2);
 
     // Pole
     const poleMesh = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.05, 0.05, 2.6, 12),
-      new THREE.MeshStandardMaterial({ color: 0x9aa3b8, metalness: 0.85, roughness: 0.25 })
+      new THREE.CylinderGeometry(0.06, 0.06, 3.0, 12),
+      new THREE.MeshStandardMaterial({ color: 0x9aa3b8, metalness: 0.9, roughness: 0.25 })
     );
-    poleMesh.position.set(-1.7, 0, 0);
+    poleMesh.position.set(-1.9, 0.2, 0);
     flagGroup.add(poleMesh);
 
+    // Ball
+    const ball = new THREE.Mesh(
+      new THREE.SphereGeometry(0.1, 16, 12),
+      new THREE.MeshStandardMaterial({ color: 0xffd76a, metalness: 0.9, roughness: 0.2 })
+    );
+    ball.position.set(-1.9, 1.72, 0);
+    flagGroup.add(ball);
+
     // Flag
-    flagGeo = new THREE.PlaneGeometry(3.4, 1.9, 30, 20);
+    flagGeo = new THREE.PlaneGeometry(3.8, 2.4, 32, 22);
     flagBasePositions = flagGeo.attributes.position.array.slice();
-    const flagMat = new THREE.MeshStandardMaterial({ map: makeFlagTexture(), side: THREE.DoubleSide, roughness: 0.7 });
+    const flagMat = new THREE.MeshStandardMaterial({
+      map: makeFlagTexture(),
+      side: THREE.DoubleSide,
+      roughness: 0.8,
+      metalness: 0.05
+    });
     const flagMesh = new THREE.Mesh(flagGeo, flagMat);
+    flagMesh.position.set(0, 0.2, 0);
     flagGroup.add(flagMesh);
+
+    // X overlay
+    xOverlayMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(3.8, 2.4),
+      new THREE.MeshBasicMaterial({ map: makeCrossOverlay(), transparent: true, depthTest: false })
+    );
+    xOverlayMesh.position.set(0, 0.2, 0.02);
+    xOverlayMesh.visible = false;
+    flagGroup.add(xOverlayMesh);
+
     scene.add(flagGroup);
+    built = true;
 
     animate();
     window.addEventListener('resize', onResize);
   }
 
   function onResize() {
-    if (!renderer) return;
-    const w = canvas.parentElement.clientWidth;
-    const h = canvas.parentElement.clientHeight;
+    if (!renderer || !canvas) return;
+    const parent = canvas.parentElement;
+    const w = parent.clientWidth;
+    const h = parent.clientHeight;
+    if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
@@ -827,25 +947,61 @@ const Feedback3D = (() => {
       const pos = flagGeo.attributes.position;
       for (let i = 0; i < pos.count; i++) {
         const bx = flagBasePositions[i * 3];
-        const factor = (bx + 1.7) / 3.4;
+        const factor = (bx + 1.9) / 3.8;
         let z = 0;
         if (waving) {
-          z = Math.sin((bx + 1.7) * 2.6 + t * 5) * 0.3 * factor
-              + Math.sin((bx + 1.7) * 5.5 + t * 3) * 0.06 * factor;
+          z = Math.sin((bx + 1.9) * 2.8 + t * 5.5) * 0.35 * factor
+            + Math.sin((bx + 1.9) * 5.8 + t * 3.2) * 0.08 * factor;
         } else {
-          z = Math.sin((bx + 1.7) * 1.5) * 0.02 * factor;
+          z = Math.sin((bx + 1.9) * 1.2) * 0.015 * factor;
         }
         pos.setZ(i, z);
       }
       pos.needsUpdate = true;
       flagGeo.computeVertexNormals();
     }
-    renderer.render(scene, camera);
+    if (renderer && scene && camera) renderer.render(scene, camera);
+  }
+
+  function applyState(correct) {
+    waving = correct;
+    if (xOverlayMesh) xOverlayMesh.visible = !correct;
+
+    const txt  = document.getElementById('fb-text');
+    const sub  = document.getElementById('fb-sub');
+    const btn  = document.getElementById('fb-btn');
+    const wrap = document.getElementById('pancasila-wrap');
+
+    if (wrap && typeof pancasilaSVG === 'function') {
+      wrap.innerHTML = pancasilaSVG(correct ? 'correct' : 'wrong');
+      wrap.style.animation = 'none';
+      void wrap.offsetWidth;
+      wrap.style.animation = '';
+    }
+
+    if (correct) {
+      if (txt) { txt.textContent = 'BENAR! 🇮🇩'; txt.className = 'fb-text ok'; }
+      if (sub) sub.textContent = 'Pancasila dijunjung tinggi — bendera Garuda berkibar bangga!';
+      if (btn) btn.classList.add('hidden');
+    } else {
+      if (txt) { txt.textContent = 'SALAH ✕'; txt.className = 'fb-text no'; }
+      if (sub) sub.textContent = 'Bendera tidak berkibar. Pancasila disilang! Kamu harus mengulang level ini dari awal.';
+      if (btn) { btn.classList.remove('hidden'); btn.textContent = '🔄 Ulangi Level'; }
+    }
+  }
+
+  function trigger(correct) {
+    build();
+    requestAnimationFrame(onResize);
+    setTimeout(onResize, 50);
+    setTimeout(onResize, 200);
+    applyState(correct);
   }
 
   return {
-    init,
-    setWaving(v) { waving = v; }
+    init: build,
+    show: trigger,
+    setWaving: trigger
   };
 })();
 
@@ -976,9 +1132,10 @@ const Reward3D = (() => {
   }
 
   function onResize() {
-    if (!renderer) return;
+    if (!renderer || !canvas) return;
     const w = canvas.parentElement.clientWidth;
     const h = canvas.parentElement.clientHeight;
+    if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
@@ -1021,6 +1178,10 @@ const Reward3D = (() => {
       callback = cb;
       setStage(0);
       plantGroup.rotation.y = 0;
+      // refresh size
+      requestAnimationFrame(onResize);
+      setTimeout(onResize, 50);
+      setTimeout(onResize, 200);
     }
   };
 })();
@@ -1123,9 +1284,10 @@ const Garden3D = (() => {
   }
 
   function onResize() {
-    if (!renderer) return;
+    if (!renderer || !canvas) return;
     const w = canvas.parentElement.clientWidth;
     const h = canvas.parentElement.clientHeight || 400;
+    if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
@@ -1152,6 +1314,8 @@ const Garden3D = (() => {
         p.position.y = -0.2;
         group.add(p);
       }
+      requestAnimationFrame(onResize);
+      setTimeout(onResize, 80);
     },
     isInited() { return inited; }
   };
@@ -1161,35 +1325,29 @@ const Garden3D = (() => {
    EVENTS
    ========================================================= */
 function bindEvents() {
-  // Material back
   $('#mat-back').addEventListener('click', () => {
     showScreen('screen-home');
     renderHome();
   });
 
-  // Start quiz from material
   $('#btn-start-quiz').addEventListener('click', () => {
     startLevel(current.levelIdx);
   });
 
-  // Quiz back
   $('#btn-back').addEventListener('click', () => {
     showScreen('screen-home');
     renderHome();
   });
 
-  // Feedback restart
   $('#fb-btn').addEventListener('click', () => {
     startLevel(current.levelIdx);
   });
 
-  // Reward home
   $('#reward-btn').addEventListener('click', () => {
     showScreen('screen-home');
     renderHome();
   });
 
-  // Garden
   $('#btn-garden').addEventListener('click', () => {
     showScreen('screen-garden');
     setTimeout(() => {
